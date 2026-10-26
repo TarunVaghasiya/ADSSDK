@@ -7,7 +7,7 @@
     android:fitsSystemWindows="true">
 
     <com.adssetup.adssdk.sdk.NativeAdView
-        android:id="@+id/ad_large"
+        android:id="@+id/nativeAdView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

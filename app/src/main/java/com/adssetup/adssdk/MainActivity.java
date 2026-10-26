@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
         MobileAds.initialize(this, initializationStatus -> {
         });
 
-        NativeAdView adView = findViewById(R.id.ad_large);
-        NativeAdPlacement.loadNativeAd(this, "ca-app-pub-3940256099942544/2247696110", adView);
+        NativeAdView nativeAdView = findViewById(R.id.nativeAdView);
+        NativeAdPlacement.loadNativeAd(this, "ca-app-pub-3940256099942544/2247696110", nativeAdView);
     }
 }

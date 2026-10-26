@@ -20,8 +20,16 @@ import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.nativead.MediaView;
 import com.google.android.gms.ads.nativead.NativeAd;
 import com.google.android.gms.ads.nativead.NativeAdOptions;
+import com.google.android.gms.ads.nativead.NativeAdView;
 
 public class NativeAdPlacement implements DefaultLifecycleObserver {
+    private Listener listener;
+    private AdLoader adLoader;
+    private NativeAd nativeAd;
+    private NativeAdCustomView container;
+    private int layoutRes = R.layout.native_large_ad_layout;
+    private boolean destroyed;
+
     public interface Listener {
         void onAdLoaded();
 
@@ -34,25 +42,18 @@ public class NativeAdPlacement implements DefaultLifecycleObserver {
         }
     }
 
-    public static void loadNativeAd(@NonNull Activity activity, @NonNull String adUnitId, @NonNull NativeAdView adView) {
+    public static void loadNativeAd(@NonNull Activity activity, @NonNull String adUnitId, @NonNull NativeAdCustomView adView) {
         if (activity.isFinishing() || activity.isDestroyed()) {
             return;
         }
         adView.load(adUnitId);
     }
 
-    private Listener listener;
-    private AdLoader adLoader;
-    private NativeAd nativeAd;
-    private NativeAdView container;
-    private int layoutRes = R.layout.native_large_ad_layout;
-    private boolean destroyed;
-
     void setLayout(@LayoutRes int layoutRes) {
         this.layoutRes = layoutRes;
     }
 
-    void load(@NonNull NativeAdView container, @NonNull String adUnitId) {
+    void load(@NonNull NativeAdCustomView container, @NonNull String adUnitId) {
         if (destroyed || adLoader != null) {
             return;
         }
@@ -100,30 +101,15 @@ public class NativeAdPlacement implements DefaultLifecycleObserver {
         adLoader.loadAd(new AdRequest.Builder().build());
     }
 
-    private void render(@NonNull NativeAdView parent, @NonNull NativeAd ad) {
-        com.google.android.gms.ads.nativead.NativeAdView adView = (com.google.android.gms.ads.nativead.NativeAdView) LayoutInflater.from(parent.getContext()).inflate(layoutRes, parent, false);
-
-        TextView headline = adView.findViewById(R.id.ad_headline);
-        headline.setText(ad.getHeadline());
-        adView.setHeadlineView(headline);
-
-        MediaView media = adView.findViewById(R.id.ad_media);
-        if (media != null) {
-            adView.setMediaView(media);
-            if (ad.getMediaContent() != null) {
-                media.setMediaContent(ad.getMediaContent());
-            }
-        }
-
-        TextView body = adView.findViewById(R.id.ad_body);
-        bindText(body, ad.getBody());
-        adView.setBodyView(body);
-
-        Button cta = adView.findViewById(R.id.ad_call_to_action);
-        bindText(cta, ad.getCallToAction());
-        adView.setCallToActionView(cta);
+    private void render(@NonNull NativeAdCustomView parent, @NonNull NativeAd ad) {
+        NativeAdView adView = (NativeAdView) LayoutInflater.from(parent.getContext()).inflate(layoutRes, parent, false);
 
         ImageView icon = adView.findViewById(R.id.ad_app_icon);
+        TextView headline = adView.findViewById(R.id.ad_headline);
+        TextView body = adView.findViewById(R.id.ad_body);
+        MediaView media = adView.findViewById(R.id.ad_media);
+        Button action = adView.findViewById(R.id.ad_call_to_action);
+
         if (ad.getIcon() != null) {
             icon.setImageDrawable(ad.getIcon().getDrawable());
             icon.setVisibility(View.VISIBLE);
@@ -132,8 +118,23 @@ public class NativeAdPlacement implements DefaultLifecycleObserver {
         }
         adView.setIconView(icon);
 
-        adView.setNativeAd(ad);
+        headline.setText(ad.getHeadline());
+        adView.setHeadlineView(headline);
 
+        bindText(body, ad.getBody());
+        adView.setBodyView(body);
+
+        if (media != null) {
+            adView.setMediaView(media);
+            if (ad.getMediaContent() != null) {
+                media.setMediaContent(ad.getMediaContent());
+            }
+        }
+
+        bindText(action, ad.getCallToAction());
+        adView.setCallToActionView(action);
+
+        adView.setNativeAd(ad);
         parent.removeAllViews();
         parent.addView(adView);
     }

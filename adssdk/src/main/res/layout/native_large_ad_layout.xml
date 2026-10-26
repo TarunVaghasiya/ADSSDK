@@ -8,7 +8,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/cardBackgroundColor"
+        android:background="@color/card_background"
         android:orientation="vertical"
         android:padding="@dimen/_10sdp">
 
@@ -33,8 +33,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/_6sdp"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                tools:ignore="NestedWeights">
+                android:orientation="vertical">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -46,24 +45,23 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/custom_label"
-                        android:fontFamily="@font/fig_tree_medium"
+                        android:fontFamily="@font/fig_tree_bold"
                         android:paddingHorizontal="@dimen/_2sdp"
                         android:paddingVertical="@dimen/_1sdp"
                         android:text="@string/native_ad_attribution"
                         android:textColor="@android:color/white"
-                        android:textSize="@dimen/_6sdp" />
+                        android:textSize="@dimen/_7sdp" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/ad_headline"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/_5sdp"
-                        android:fontFamily="@font/fig_tree_medium"
-                        android:includeFontPadding="false"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:fontFamily="@font/fig_tree_bold"
                         android:singleLine="true"
                         android:text="Ad Headline"
-                        android:textColor="?attr/textPrimaryColor"
-                        android:textSize="@dimen/_10sdp"
+                        android:textColor="@color/text_primary"
+                        android:textSize="@dimen/_11sdp"
                         tools:ignore="HardcodedText" />
 
                 </LinearLayout>
@@ -73,11 +71,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/_2sdp"
-                    android:fontFamily="@font/fig_tree_regular"
-                    android:includeFontPadding="false"
+                    android:fontFamily="@font/fig_tree_medium"
                     android:maxLines="2"
                     android:text="Ad Body"
-                    android:textColor="?attr/textSecondaryColor"
+                    android:textColor="@color/text_secondary"
                     android:textSize="@dimen/_9sdp"
                     tools:ignore="HardcodedText" />
 
@@ -90,7 +87,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/_40sdp"
             android:background="@drawable/custom_button"
-            android:fontFamily="@font/fig_tree_medium"
+            android:fontFamily="@font/fig_tree_bold"
             android:gravity="center"
             android:maxLines="1"
             android:minWidth="0dp"

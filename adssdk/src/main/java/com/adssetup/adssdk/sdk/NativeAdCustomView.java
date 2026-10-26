@@ -20,6 +20,8 @@ import androidx.lifecycle.ViewTreeLifecycleOwner;
 import com.facebook.shimmer.Shimmer;
 import com.facebook.shimmer.ShimmerFrameLayout;
 
+import java.lang.ref.WeakReference;
+
 public class NativeAdCustomView extends FrameLayout implements DefaultLifecycleObserver {
     private static final Size[] SIZES = Size.values();
     private final Size size;
@@ -64,7 +66,21 @@ public class NativeAdCustomView extends FrameLayout implements DefaultLifecycleO
             return;
         }
         placement = new NativeAdPlacement();
-        placement.load(this, adUnitId, size.layoutRes);
+        showShimmer();
+
+        WeakReference<NativeAdCustomView> viewReference = new WeakReference<>(this);
+        SdkAuthorization.authorize(getContext(), authorized -> {
+            NativeAdCustomView view = viewReference.get();
+            if (view == null || view.destroyed) {
+                return;
+            }
+            if (authorized) {
+                view.placement.load(view, adUnitId, view.size.layoutRes);
+            } else {
+                view.hideShimmer();
+                view.setVisibility(GONE);
+            }
+        });
     }
 
     void showShimmer() {

@@ -18,9 +18,16 @@ import androidx.lifecycle.ViewTreeLifecycleOwner;
 
 import com.facebook.shimmer.Shimmer;
 import com.facebook.shimmer.ShimmerFrameLayout;
-import com.google.android.gms.ads.LoadAdError;
 
 public class NativeAdView extends FrameLayout implements DefaultLifecycleObserver {
+    private static final Size[] SIZES = Size.values();
+    private final Size size;
+    private NativeAdPlacement placement;
+    private ShimmerFrameLayout shimmer;
+    private View sizeReference;
+    private LifecycleOwner observedOwner;
+    private boolean destroyed;
+
     public enum Size {
         LARGE(R.layout.native_large_ad_layout), MEDIUM(R.layout.native_medium_ad_layout), SMALL(R.layout.native_small_ad_layout);
 
@@ -32,16 +39,6 @@ public class NativeAdView extends FrameLayout implements DefaultLifecycleObserve
         }
     }
 
-    private static final Size[] SIZES = Size.values();
-
-    private Size size;
-    private NativeAdPlacement.Listener listener;
-    private NativeAdPlacement placement;
-    private ShimmerFrameLayout shimmer;
-    private View sizeReference;
-    private LifecycleOwner observedOwner;
-    private boolean destroyed;
-
     public NativeAdView(@NonNull Context context) {
         this(context, null);
     }
@@ -52,50 +49,19 @@ public class NativeAdView extends FrameLayout implements DefaultLifecycleObserve
 
     public NativeAdView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.NativeAdView, defStyleAttr, 0);
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.NativeAdView, defStyleAttr, 0);
         try {
-            size = SIZES[a.getInt(R.styleable.NativeAdView_nativeAdSize, 0)];
+            size = SIZES[typedArray.getInt(R.styleable.NativeAdView_nativeAdSize, 0)];
         } finally {
-            a.recycle();
+            typedArray.recycle();
         }
     }
-
-    private final NativeAdPlacement.Listener callbacks = new NativeAdPlacement.Listener() {
-        @Override
-        public void onAdLoaded() {
-            if (listener != null) {
-                listener.onAdLoaded();
-            }
-        }
-
-        @Override
-        public void onAdFailedToLoad(@NonNull LoadAdError error) {
-            if (listener != null) {
-                listener.onAdFailedToLoad(error);
-            }
-        }
-
-        @Override
-        public void onAdClicked() {
-            if (listener != null) {
-                listener.onAdClicked();
-            }
-        }
-
-        @Override
-        public void onAdImpression() {
-            if (listener != null) {
-                listener.onAdImpression();
-            }
-        }
-    };
 
     void load(@NonNull String adUnitId) {
         if (destroyed || placement != null) {
             return;
         }
         placement = new NativeAdPlacement();
-        placement.setListener(callbacks);
         placement.setLayout(size.layoutRes);
         placement.load(this, adUnitId);
     }
@@ -104,10 +70,11 @@ public class NativeAdView extends FrameLayout implements DefaultLifecycleObserve
         if (shimmer != null) {
             return;
         }
-        shimmer = (ShimmerFrameLayout) LayoutInflater.from(getContext()).inflate(R.layout.shimmer_layout, this, false);
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        shimmer = (ShimmerFrameLayout) inflater.inflate(R.layout.shimmer_layout, this, false);
         shimmer.setShimmer(new Shimmer.AlphaHighlightBuilder().setDuration(1200).build());
 
-        sizeReference = LayoutInflater.from(getContext()).inflate(size.layoutRes, this, false);
+        sizeReference = inflater.inflate(size.layoutRes, this, false);
         TextView body = sizeReference.findViewById(R.id.ad_body);
         body.setLines(body.getMaxLines());
 

@@ -4,7 +4,10 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -12,6 +15,10 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewTreeLifecycleOwner;
+
+import com.facebook.shimmer.Shimmer;
+import com.facebook.shimmer.ShimmerFrameLayout;
+import com.google.android.gms.ads.LoadAdError;
 
 public class NativeAdView extends FrameLayout implements DefaultLifecycleObserver {
     public enum Size {
@@ -28,9 +35,10 @@ public class NativeAdView extends FrameLayout implements DefaultLifecycleObserve
     private static final Size[] SIZES = Size.values();
 
     private Size size;
-    private String adUnitId = NativeAdPlacement.TEST_AD_UNIT_ID;
     private NativeAdPlacement.Listener listener;
     private NativeAdPlacement placement;
+    private ShimmerFrameLayout shimmer;
+    private View sizeReference;
     private LifecycleOwner observedOwner;
     private boolean destroyed;
 
@@ -47,41 +55,88 @@ public class NativeAdView extends FrameLayout implements DefaultLifecycleObserve
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.NativeAdView, defStyleAttr, 0);
         try {
             size = SIZES[a.getInt(R.styleable.NativeAdView_nativeAdSize, 0)];
-            String unitId = a.getString(R.styleable.NativeAdView_nativeAdUnitId);
-            if (unitId != null && !unitId.isEmpty()) {
-                adUnitId = unitId;
-            }
         } finally {
             a.recycle();
         }
     }
 
-    public void setListener(@Nullable NativeAdPlacement.Listener listener) {
-        this.listener = listener;
-        if (placement != null) {
-            placement.setListener(listener);
+    private final NativeAdPlacement.Listener callbacks = new NativeAdPlacement.Listener() {
+        @Override
+        public void onAdLoaded() {
+            if (listener != null) {
+                listener.onAdLoaded();
+            }
         }
-    }
 
-    @NonNull
-    public Size getSize() {
-        return size;
-    }
+        @Override
+        public void onAdFailedToLoad(@NonNull LoadAdError error) {
+            if (listener != null) {
+                listener.onAdFailedToLoad(error);
+            }
+        }
 
-    public void load() {
-        if (destroyed) {
+        @Override
+        public void onAdClicked() {
+            if (listener != null) {
+                listener.onAdClicked();
+            }
+        }
+
+        @Override
+        public void onAdImpression() {
+            if (listener != null) {
+                listener.onAdImpression();
+            }
+        }
+    };
+
+    void load(@NonNull String adUnitId) {
+        if (destroyed || placement != null) {
             return;
         }
-        if (placement == null) {
-            placement = new NativeAdPlacement(getContext(), adUnitId);
-            placement.setListener(listener);
-        }
+        placement = new NativeAdPlacement();
+        placement.setListener(callbacks);
         placement.setLayout(size.layoutRes);
-        placement.load(this);
+        placement.load(this, adUnitId);
+    }
+
+    void showShimmer() {
+        if (shimmer != null) {
+            return;
+        }
+        shimmer = (ShimmerFrameLayout) LayoutInflater.from(getContext()).inflate(R.layout.shimmer_layout, this, false);
+        shimmer.setShimmer(new Shimmer.AlphaHighlightBuilder().setDuration(1200).build());
+
+        sizeReference = LayoutInflater.from(getContext()).inflate(size.layoutRes, this, false);
+        TextView body = sizeReference.findViewById(R.id.ad_body);
+        body.setLines(body.getMaxLines());
+
+        addView(shimmer);
+        shimmer.startShimmer();
+    }
+
+    void hideShimmer() {
+        if (shimmer != null) {
+            shimmer.stopShimmer();
+            removeView(shimmer);
+            shimmer = null;
+            sizeReference = null;
+        }
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if (shimmer != null) {
+            int width = MeasureSpec.getSize(widthMeasureSpec) - getPaddingLeft() - getPaddingRight();
+            sizeReference.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.UNSPECIFIED);
+            shimmer.getLayoutParams().height = sizeReference.getMeasuredHeight();
+        }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     public void destroy() {
         destroyed = true;
+        hideShimmer();
         if (observedOwner != null) {
             observedOwner.getLifecycle().removeObserver(this);
             observedOwner = null;

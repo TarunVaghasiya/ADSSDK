@@ -6,6 +6,7 @@ espressoCore = "3.7.0"
 appcompat = "1.8.0"
 material = "1.14.0"
 sdp = "1.1.1"
+shimmer = "0.5.0"
 playServicesAds = "25.5.0"
 
 [libraries]
@@ -15,6 +16,7 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 sdp-android = { group = "com.intuit.sdp", name = "sdp-android", version.ref = "sdp" }
+facebook-shimmer = { group = "com.facebook.shimmer", name = "shimmer", version.ref = "shimmer" }
 play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
 
 [plugins]

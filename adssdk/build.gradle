@@ -37,6 +37,7 @@ android {
 dependencies {
     implementation libs.appcompat
     implementation libs.sdp.android
+    implementation libs.facebook.shimmer
     api libs.play.services.ads
 }
 

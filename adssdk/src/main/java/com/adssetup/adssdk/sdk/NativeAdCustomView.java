@@ -64,8 +64,7 @@ public class NativeAdCustomView extends FrameLayout implements DefaultLifecycleO
             return;
         }
         placement = new NativeAdPlacement();
-        placement.setLayout(size.layoutRes);
-        placement.load(this, adUnitId);
+        placement.load(this, adUnitId, size.layoutRes);
     }
 
     void showShimmer() {

@@ -1,5 +1,6 @@
 package com.adssetup.adssdk.sdk;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.TypedArray;
@@ -19,7 +20,7 @@ import androidx.lifecycle.ViewTreeLifecycleOwner;
 import com.facebook.shimmer.Shimmer;
 import com.facebook.shimmer.ShimmerFrameLayout;
 
-public class NativeAdView extends FrameLayout implements DefaultLifecycleObserver {
+public class NativeAdCustomView extends FrameLayout implements DefaultLifecycleObserver {
     private static final Size[] SIZES = Size.values();
     private final Size size;
     private NativeAdPlacement placement;
@@ -39,15 +40,16 @@ public class NativeAdView extends FrameLayout implements DefaultLifecycleObserve
         }
     }
 
-    public NativeAdView(@NonNull Context context) {
+    public NativeAdCustomView(@NonNull Context context) {
         this(context, null);
     }
 
-    public NativeAdView(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public NativeAdCustomView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public NativeAdView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    @SuppressLint("CustomViewStyleable")
+    public NativeAdCustomView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.NativeAdView, defStyleAttr, 0);
         try {

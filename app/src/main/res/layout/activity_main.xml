@@ -6,8 +6,8 @@
     android:background="@color/main_background"
     android:fitsSystemWindows="true">
 
-    <com.adssetup.adssdk.sdk.NativeAdView
-        android:id="@+id/nativeAdView"
+    <com.adssetup.adssdk.sdk.NativeAdCustomView
+        android:id="@+id/nativeAdCustomView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

@@ -32,7 +32,7 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
     private AdSize adSize;
 
     public enum Size {
-        SMALL(0f), MEDIUM(0.25f), LARGE(0.4f);
+        SMALL(0f), MEDIUM(0.2f), LARGE(0.4f);
 
         final float maxHeightFraction;
 

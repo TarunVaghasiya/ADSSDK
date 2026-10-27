@@ -48,7 +48,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.YOUR_GITHUB_USERNAME'
                 artifactId = 'adssdk'
-                version = '1.0.1'
+                version = '1.0.4'
             }
         }
     }

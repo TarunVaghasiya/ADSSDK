@@ -30,6 +30,11 @@ public final class SdkAuthorization {
     private static final int READ_TIMEOUT_MS = 8_000;
     private static final int MAX_BODY_BYTES = 1_024;
 
+    private enum State {UNKNOWN, IN_PROGRESS, AUTHORIZED, DENIED}
+
+    private static final AtomicBoolean ADS_INITIALIZED = new AtomicBoolean();
+    private static State state = State.UNKNOWN;
+
     interface Callback {
         void onResult(boolean authorized);
     }
@@ -42,12 +47,6 @@ public final class SdkAuthorization {
         thread.setDaemon(true);
         return thread;
     });
-
-    private enum State {UNKNOWN, IN_PROGRESS, AUTHORIZED, DENIED}
-
-    private static final AtomicBoolean ADS_INITIALIZED = new AtomicBoolean();
-
-    private static State state = State.UNKNOWN; // guarded by LOCK
 
     private SdkAuthorization() {
     }

@@ -11,17 +11,10 @@
         android:background="@color/card_background"
         android:padding="@dimen/_10sdp">
 
-        <com.google.android.gms.ads.nativead.MediaView
-            android:id="@+id/ad_media"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/_125sdp"
-            android:layout_marginEnd="@dimen/_5sdp"
-            android:layout_weight="0.9" />
-
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="@dimen/_5sdp"
+            android:layout_marginEnd="@dimen/_5sdp"
             android:layout_weight="1.1"
             android:orientation="vertical">
 
@@ -35,10 +28,9 @@
                     android:layout_height="@dimen/_40sdp" />
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/_6sdp"
-                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/_5sdp"
                     android:orientation="vertical">
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -51,13 +43,14 @@
                         android:paddingVertical="@dimen/_1sdp"
                         android:text="@string/native_ad_attribution"
                         android:textColor="@android:color/white"
-                        android:textSize="@dimen/_7sdp" />
+                        android:textSize="@dimen/_7sdp"
+                        tools:ignore="RelativeOverlap" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/ad_headline"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/_2sdp"
+                        android:layout_marginTop="@dimen/_5sdp"
                         android:fontFamily="@font/fig_tree_bold"
                         android:maxLines="2"
                         android:text="Ad Headline"
@@ -73,7 +66,7 @@
                 android:id="@+id/ad_body"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_6sdp"
+                android:layout_marginTop="@dimen/_10sdp"
                 android:fontFamily="@font/fig_tree_medium"
                 android:maxLines="3"
                 android:text="Ad Body"
@@ -85,14 +78,14 @@
                 android:id="@+id/ad_call_to_action"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_36sdp"
-                android:layout_marginTop="@dimen/_6sdp"
+                android:layout_marginTop="@dimen/_10sdp"
                 android:background="@drawable/custom_button"
                 android:fontFamily="@font/fig_tree_bold"
                 android:gravity="center"
                 android:maxLines="1"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
-                android:paddingHorizontal="@dimen/_6sdp"
+                android:paddingHorizontal="@dimen/_5sdp"
                 android:singleLine="true"
                 android:stateListAnimator="@null"
                 android:text="Install"
@@ -101,6 +94,13 @@
                 tools:ignore="HardcodedText" />
 
         </LinearLayout>
+
+        <com.google.android.gms.ads.nativead.MediaView
+            android:id="@+id/ad_media"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/_140sdp"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:layout_weight="0.9" />
 
     </LinearLayout>
 

@@ -10,13 +10,13 @@
         android:id="@+id/bannerAdCustomView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:bannerAdSize="medium" />
+        app:bannerAdSize="large" />
 
     <com.adssetup.adssdk.sdk.NativeAdCustomView
         android:id="@+id/nativeAdCustomView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        app:nativeAdSize="medium" />
+        app:nativeAdSize="large" />
 
 </RelativeLayout>

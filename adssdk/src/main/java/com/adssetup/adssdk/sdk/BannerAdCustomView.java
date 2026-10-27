@@ -126,7 +126,11 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
     }
 
     private int slotHeight(@NonNull AdSize adSize) {
-        return adSize.getHeight() > 0 ? adSize.getHeightInPixels(getContext()) : Math.round(getResources().getDisplayMetrics().heightPixels * size.maxHeightFraction);
+        if (adSize.getHeight() > 0) {
+            return adSize.getHeightInPixels(getContext());
+        }
+        int maxHeight = Math.round(getResources().getDisplayMetrics().heightPixels * size.maxHeightFraction);
+        return Math.min(maxHeight, Math.round(adSize.getWidthInPixels(getContext()) * 250f / 300f));
     }
 
     void showShimmer(@NonNull AdSize adSize) {

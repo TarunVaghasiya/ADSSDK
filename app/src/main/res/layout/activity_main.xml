@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/main_background"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
 
     <com.adssetup.adssdk.sdk.BannerAdCustomView
         android:id="@+id/bannerAdCustomView"
@@ -12,11 +14,49 @@
         android:layout_height="wrap_content"
         app:bannerAdSize="large" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvInterstitial"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_42sdp"
+            android:layout_marginHorizontal="@dimen/_20sdp"
+            android:layout_marginBottom="@dimen/_10sdp"
+            android:background="@drawable/custom_button"
+            android:fontFamily="@font/fig_tree_bold"
+            android:gravity="center"
+            android:text="Interstitial"
+            android:textAllCaps="true"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/_12sdp"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvAppOpen"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_42sdp"
+            android:layout_marginHorizontal="@dimen/_20sdp"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:background="@drawable/custom_button"
+            android:fontFamily="@font/fig_tree_bold"
+            android:gravity="center"
+            android:text="APP OPEN"
+            android:textAllCaps="true"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/_12sdp"
+            tools:ignore="HardcodedText" />
+
+    </LinearLayout>
+
     <com.adssetup.adssdk.sdk.NativeAdCustomView
         android:id="@+id/nativeAdCustomView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         app:nativeAdSize="large" />
 
-</RelativeLayout>
+</LinearLayout>

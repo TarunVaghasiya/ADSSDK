@@ -25,7 +25,7 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/_6sdp"
+                android:layout_marginStart="@dimen/_5sdp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -50,7 +50,7 @@
                         android:id="@+id/ad_headline"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/_4sdp"
+                        android:layout_marginStart="@dimen/_5sdp"
                         android:fontFamily="@font/fig_tree_bold"
                         android:singleLine="true"
                         android:text="Ad Headline"
@@ -92,7 +92,7 @@
             android:maxLines="1"
             android:minWidth="0dp"
             android:minHeight="0dp"
-            android:paddingHorizontal="@dimen/_6sdp"
+            android:paddingHorizontal="@dimen/_5sdp"
             android:singleLine="true"
             android:stateListAnimator="@null"
             android:text="Install"

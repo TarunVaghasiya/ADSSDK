@@ -66,7 +66,7 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
         placement = new BannerAdPlacement();
         this.adUnitId = adUnitId;
 
-        showPlaceholder();
+        showShimmer(resolveAdSize());
         WeakReference<BannerAdCustomView> viewReference = new WeakReference<>(this);
         SdkAuthorization.authorize(getContext(), granted -> {
             BannerAdCustomView view = viewReference.get();
@@ -83,12 +83,6 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
         });
     }
 
-    private void showPlaceholder() {
-        if (getWidth() > 0) {
-            showShimmer(resolveAdSize());
-        }
-    }
-
     private void start() {
         if (getWidth() == 0) {
             return;
@@ -99,7 +93,8 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
 
     @NonNull
     private AdSize resolveAdSize() {
-        int widthPx = getWidth() - getPaddingLeft() - getPaddingRight();
+        int viewWidth = getWidth() > 0 ? getWidth() : getResources().getDisplayMetrics().widthPixels;
+        int widthPx = viewWidth - getPaddingLeft() - getPaddingRight();
         int widthDp = Math.round(widthPx / getResources().getDisplayMetrics().density);
         return BannerAdPlacement.adSizeFor(getContext(), size, widthDp);
     }
@@ -111,7 +106,6 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
             return;
         }
         if (!authorized) {
-            showPlaceholder();
             return;
         }
         if (adSize == null) {
@@ -134,12 +128,14 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
     }
 
     void showShimmer(@NonNull AdSize adSize) {
+        LayoutParams params = new LayoutParams(adSize.getWidthInPixels(getContext()), slotHeight(adSize), Gravity.CENTER_HORIZONTAL);
         if (shimmer != null) {
+            shimmer.setLayoutParams(params);
             return;
         }
         shimmer = (ShimmerFrameLayout) LayoutInflater.from(getContext()).inflate(R.layout.shimmer_layout, this, false);
         shimmer.setShimmer(new Shimmer.AlphaHighlightBuilder().setDuration(1200).build());
-        shimmer.setLayoutParams(new LayoutParams(adSize.getWidthInPixels(getContext()), slotHeight(adSize), Gravity.CENTER_HORIZONTAL));
+        shimmer.setLayoutParams(params);
         addView(shimmer);
         shimmer.startShimmer();
     }

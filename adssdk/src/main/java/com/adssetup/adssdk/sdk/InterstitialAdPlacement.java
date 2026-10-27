@@ -108,7 +108,7 @@ public class InterstitialAdPlacement implements DefaultLifecycleObserver {
     private void showDialog(@NonNull Activity activity) {
         dialog = new Dialog(activity);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(LayoutInflater.from(activity).inflate(R.layout.interstitial_loading_dialog, null));
+        dialog.setContentView(LayoutInflater.from(activity).inflate(R.layout.loading_dialog, null));
         dialog.setCancelable(false);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));

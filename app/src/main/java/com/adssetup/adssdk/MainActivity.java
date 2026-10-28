@@ -21,14 +21,14 @@ public class MainActivity extends AppCompatActivity {
         BannerAdCustomView bannerAdCustomView = findViewById(R.id.bannerAdCustomView);
         BannerAdPlacement.loadBannerAd(this, "ca-app-pub-3940256099942544/9214589741", bannerAdCustomView);
 
-        View tvInterstitial = findViewById(R.id.tvInterstitial);
-        tvInterstitial.setOnClickListener(view -> {
+        View tvInterstitial1 = findViewById(R.id.tvInterstitial1);
+        tvInterstitial1.setOnClickListener(view -> {
             view.setEnabled(false);
             InterstitialAdPlacement.loadInterstitialAd(this, "ca-app-pub-3940256099942544/1033173712", shown -> view.setEnabled(true));
         });
 
-        View tvAppOpen = findViewById(R.id.tvAppOpen);
-        tvAppOpen.setOnClickListener(view -> {
+        View tvAppOpen1 = findViewById(R.id.tvAppOpen1);
+        tvAppOpen1.setOnClickListener(view -> {
             view.setEnabled(false);
             AppOpenAdPlacement.loadAppOpenAd(this, "ca-app-pub-3940256099942544/9257395921", shown -> view.setEnabled(true));
         });

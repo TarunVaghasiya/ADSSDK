@@ -22,7 +22,7 @@
         android:orientation="vertical">
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvInterstitial"
+            android:id="@+id/tvInterstitial1"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_42sdp"
             android:layout_marginHorizontal="@dimen/_20sdp"
@@ -30,14 +30,14 @@
             android:background="@drawable/custom_button"
             android:fontFamily="@font/fig_tree_bold"
             android:gravity="center"
-            android:text="Interstitial"
+            android:text="Interstitial 1"
             android:textAllCaps="true"
             android:textColor="@android:color/white"
             android:textSize="@dimen/_12sdp"
             tools:ignore="HardcodedText" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvAppOpen"
+            android:id="@+id/tvAppOpen1"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_42sdp"
             android:layout_marginHorizontal="@dimen/_20sdp"
@@ -45,7 +45,7 @@
             android:background="@drawable/custom_button"
             android:fontFamily="@font/fig_tree_bold"
             android:gravity="center"
-            android:text="APP OPEN"
+            android:text="APP OPEN 1"
             android:textAllCaps="true"
             android:textColor="@android:color/white"
             android:textSize="@dimen/_12sdp"

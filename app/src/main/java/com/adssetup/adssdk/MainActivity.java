@@ -1,5 +1,6 @@
 package com.adssetup.adssdk;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -22,18 +23,18 @@ public class MainActivity extends AppCompatActivity {
         BannerAdPlacement.loadBannerAd(this, "ca-app-pub-3940256099942544/9214589741", bannerAdCustomView);
 
         View tvInterstitial1 = findViewById(R.id.tvInterstitial1);
-        tvInterstitial1.setOnClickListener(view -> {
-            view.setEnabled(false);
-            InterstitialAdPlacement.loadInterstitialAd(this, "ca-app-pub-3940256099942544/1033173712", shown -> view.setEnabled(true));
-        });
+        tvInterstitial1.setOnClickListener(view -> InterstitialAdPlacement.loadInterstitialAd(this, "ca-app-pub-3940256099942544/1033173712", shown -> openSecond()));
 
         View tvAppOpen1 = findViewById(R.id.tvAppOpen1);
-        tvAppOpen1.setOnClickListener(view -> {
-            view.setEnabled(false);
-            AppOpenAdPlacement.loadAppOpenAd(this, "ca-app-pub-3940256099942544/9257395921", shown -> view.setEnabled(true));
-        });
+        tvAppOpen1.setOnClickListener(view -> AppOpenAdPlacement.loadAppOpenAd(this, "ca-app-pub-3940256099942544/9257395921", shown -> openSecond()));
 
         NativeAdCustomView nativeAdCustomView = findViewById(R.id.nativeAdCustomView);
         NativeAdPlacement.loadNativeAd(this, "ca-app-pub-3940256099942544/2247696110", nativeAdCustomView);
+    }
+
+    private void openSecond() {
+        if (!isFinishing() && !isDestroyed()) {
+            startActivity(new Intent(this, SecondActivity.class));
+        }
     }
 }

@@ -1,9 +1,6 @@
 <resources>
     <string name="app_name">ADSSDK</string>
 
-    <string name="btn_interstitial_1">Interstitial 1</string>
-    <string name="btn_app_open_1">APP OPEN 1</string>
-
-    <string name="btn_interstitial_2">Interstitial 2</string>
-    <string name="btn_app_open_2">APP OPEN 2</string>
+    <string name="btn_ads_1">ADS 1</string>
+    <string name="btn_ads_2">ADS 2</string>
 </resources>

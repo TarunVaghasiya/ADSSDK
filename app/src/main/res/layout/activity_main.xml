@@ -7,12 +7,6 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
-    <com.adssetup.adssdk.sdk.BannerAdCustomView
-        android:id="@+id/bannerAdCustomView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:bannerAdSize="large" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -21,39 +15,38 @@
         android:orientation="vertical">
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvInterstitial1"
+            android:id="@+id/tvAds1"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_42sdp"
             android:layout_marginHorizontal="@dimen/_20sdp"
-            android:layout_marginBottom="@dimen/_10sdp"
             android:background="@drawable/custom_button"
             android:fontFamily="@font/fig_tree_bold"
             android:gravity="center"
-            android:text="@string/btn_interstitial_1"
-            android:textAllCaps="true"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/_12sdp" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvAppOpen1"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_42sdp"
-            android:layout_marginHorizontal="@dimen/_20sdp"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:background="@drawable/custom_button"
-            android:fontFamily="@font/fig_tree_bold"
-            android:gravity="center"
-            android:text="@string/btn_app_open_1"
+            android:text="@string/btn_ads_1"
             android:textAllCaps="true"
             android:textColor="@android:color/white"
             android:textSize="@dimen/_12sdp" />
 
     </LinearLayout>
 
-    <com.adssetup.adssdk.sdk.NativeAdCustomView
-        android:id="@+id/nativeAdCustomView"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:nativeAdSize="large" />
+        android:layout_height="wrap_content">
+
+        <com.adssetup.adssdk.sdk.BannerAdCustomView
+            android:id="@+id/bannerAdCustomView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:bannerAdSize="large" />
+
+        <com.adssetup.adssdk.sdk.NativeAdCustomView
+            android:id="@+id/nativeAdCustomView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:nativeAdSize="large" />
+
+    </RelativeLayout>
 
 </LinearLayout>

@@ -32,6 +32,10 @@ public class BannerAdPlacement {
             bannerView.setVisibility(View.GONE);
             return;
         }
+        if (AdsController.isQuizPriority()) {
+            bannerView.showQuiz();
+            return;
+        }
         bannerView.load(adUnitId);
     }
 

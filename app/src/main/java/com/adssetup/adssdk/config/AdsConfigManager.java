@@ -20,6 +20,7 @@ public final class AdsConfigManager {
         if (config == null) {
             config = AdsConfigParser.parse(context.getApplicationContext());
             AdsController.setAdsEnabled(config.isAppAllAdsShow());
+            AdsController.setQuizPriority("quiz".equalsIgnoreCase(config.getAdPriority()));
             AdsController.setQuizFallbackEnabled(config.isGoogleAdFailedShowQuiz());
         }
     }

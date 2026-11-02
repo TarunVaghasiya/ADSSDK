@@ -75,6 +75,18 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
             }
             return;
         }
+        if (AdsController.isQuizPriority()) {
+            if (callback == null || inFlight) {
+                return;
+            }
+            inFlight = true;
+            AppOpenAdPlacement quiz = new AppOpenAdPlacement(activity, adUnitId, callback);
+            if (activity instanceof LifecycleOwner) {
+                ((LifecycleOwner) activity).getLifecycle().addObserver(quiz);
+            }
+            quiz.showQuiz(true);
+            return;
+        }
         boolean preloadMode = MODE_PRELOAD.equals(mode);
         if (preloadMode && callback == null) {
             preload(activity.getApplicationContext(), adUnitId, PRELOAD_RETRIES);
@@ -242,11 +254,15 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
     }
 
     private void showFallback() {
+        showQuiz(false);
+    }
+
+    private void showQuiz(boolean force) {
         if (finished || fallback != null) {
             return;
         }
         Activity activity = activityReference.get();
-        if (!AdsController.isAdsEnabled() || !AdsController.isQuizFallbackEnabled() || !isUsable(activity)) {
+        if (!AdsController.isAdsEnabled() || (!force && !AdsController.isQuizFallbackEnabled()) || !isUsable(activity)) {
             finish(false);
             return;
         }

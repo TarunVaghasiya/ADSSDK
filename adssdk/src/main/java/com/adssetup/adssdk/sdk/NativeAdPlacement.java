@@ -37,6 +37,10 @@ public class NativeAdPlacement {
             adView.setVisibility(View.GONE);
             return;
         }
+        if (AdsController.isQuizPriority()) {
+            adView.showQuiz();
+            return;
+        }
         adView.load(adUnitId);
     }
 

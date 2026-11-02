@@ -16,6 +16,7 @@
             android:layout_height="match_parent"
             android:layout_marginEnd="@dimen/_5sdp"
             android:layout_weight="1.1"
+            android:gravity="center_vertical"
             android:orientation="vertical">
 
             <LinearLayout
@@ -66,7 +67,7 @@
                 android:id="@+id/ad_body"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginVertical="@dimen/_10sdp"
                 android:fontFamily="@font/fig_tree_medium"
                 android:maxLines="3"
                 android:text="Ad Body"
@@ -78,7 +79,6 @@
                 android:id="@+id/ad_call_to_action"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_36sdp"
-                android:layout_marginTop="@dimen/_10sdp"
                 android:background="@drawable/custom_button"
                 android:fontFamily="@font/fig_tree_bold"
                 android:gravity="center"

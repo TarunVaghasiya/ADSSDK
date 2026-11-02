@@ -42,16 +42,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
         boolean buttonAdEnabled = main.isMainButtonAdShow();
+        if (buttonAdEnabled && AdsConfigManager.isType(main.getMainButtonAdType(), AdsConfigManager.TYPE_INTERSTITIAL) && InterstitialAdPlacement.MODE_PRELOAD.equals(AdsConfigManager.loadMode(config.getInterstitialLoadType()))) {
+            InterstitialAdPlacement.loadInterstitialAd(this, main.getMainInterstitialId(), InterstitialAdPlacement.MODE_PRELOAD, null);
+        } else if (buttonAdEnabled && AdsConfigManager.isType(main.getMainButtonAdType(), AdsConfigManager.TYPE_APP_OPEN) && AppOpenAdPlacement.MODE_PRELOAD.equals(AdsConfigManager.loadMode(config.getAppOpenLoadType()))) {
+            AppOpenAdPlacement.loadAppOpenAd(this, main.getMainAppOpenId(), AppOpenAdPlacement.MODE_PRELOAD, null);
+        }
         findViewById(R.id.tvAds1).setOnClickListener(view -> {
             if (buttonAdEnabled && AdsConfigManager.isType(main.getMainButtonAdType(), AdsConfigManager.TYPE_INTERSTITIAL)) {
                 view.setEnabled(false);
-                InterstitialAdPlacement.loadInterstitialAd(this, main.getMainInterstitialId(), "load", shown -> {
+                InterstitialAdPlacement.loadInterstitialAd(this, main.getMainInterstitialId(), AdsConfigManager.loadMode(config.getInterstitialLoadType()), shown -> {
                     view.setEnabled(true);
                     openSecond();
                 });
             } else if (buttonAdEnabled && AdsConfigManager.isType(main.getMainButtonAdType(), AdsConfigManager.TYPE_APP_OPEN)) {
                 view.setEnabled(false);
-                AppOpenAdPlacement.loadAppOpenAd(this, main.getMainAppOpenId(), "load", shown -> {
+                AppOpenAdPlacement.loadAppOpenAd(this, main.getMainAppOpenId(), AdsConfigManager.loadMode(config.getAppOpenLoadType()), shown -> {
                     view.setEnabled(true);
                     openSecond();
                 });

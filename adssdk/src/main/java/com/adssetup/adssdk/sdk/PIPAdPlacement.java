@@ -4,6 +4,7 @@ import android.app.Activity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.core.app.OnPictureInPictureModeChangedProvider;
 import androidx.core.app.PictureInPictureModeChangedInfo;
 import androidx.core.util.Consumer;
@@ -12,9 +13,9 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback;
+import com.google.android.libraries.ads.mobile.sdk.common.ExperimentalApi;
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError;
 import com.google.android.libraries.ads.mobile.sdk.pip.PictureInPictureAd;
-import com.google.android.libraries.ads.mobile.sdk.pip.PictureInPictureAdEventCallback;
 import com.google.android.libraries.ads.mobile.sdk.pip.PictureInPictureAdOptions;
 import com.google.android.libraries.ads.mobile.sdk.pip.PictureInPictureAdPosition;
 import com.google.android.libraries.ads.mobile.sdk.pip.PictureInPictureAdPresentationScope;
@@ -22,18 +23,13 @@ import com.google.android.libraries.ads.mobile.sdk.pip.PictureInPictureAdRequest
 
 import java.lang.ref.WeakReference;
 
-/**
- * Google's floating picture-in-picture ad. It is shown only while the host activity is started and
- * is not itself in the system picture-in-picture window; it is hidden on stop or system-PiP entry and
- * destroyed with the activity.
- */
+@OptIn(markerClass = ExperimentalApi.class)
 public class PIPAdPlacement implements DefaultLifecycleObserver {
     private final WeakReference<Activity> activityReference;
     private final String adUnitId;
     private final PictureInPictureAdPosition position;
     private final Consumer<PictureInPictureModeChangedInfo> pipModeListener = info -> update();
     private PictureInPictureAd pipAd;
-    private boolean loading;
     private boolean shown;
     private boolean destroyed;
 
@@ -45,11 +41,11 @@ public class PIPAdPlacement implements DefaultLifecycleObserver {
 
     @Nullable
     public static PIPAdPlacement loadPIPAd(@NonNull Activity activity, @NonNull String adUnitId) {
-        return loadPipAd(activity, adUnitId, PictureInPictureAdPosition.DEFAULT);
+        return loadPIPAd(activity, adUnitId, PictureInPictureAdPosition.DEFAULT);
     }
 
     @Nullable
-    public static PIPAdPlacement loadPipAd(@NonNull Activity activity, @NonNull String adUnitId, @NonNull PictureInPictureAdPosition position) {
+    public static PIPAdPlacement loadPIPAd(@NonNull Activity activity, @NonNull String adUnitId, @NonNull PictureInPictureAdPosition position) {
         if (activity.isFinishing() || activity.isDestroyed()) {
             return null;
         }
@@ -60,58 +56,54 @@ public class PIPAdPlacement implements DefaultLifecycleObserver {
         if (activity instanceof OnPictureInPictureModeChangedProvider) {
             ((OnPictureInPictureModeChangedProvider) activity).addOnPictureInPictureModeChangedListener(placement.pipModeListener);
         }
-        placement.loading = true;
-        SdkAuthorization.authorize(activity, granted -> placement.onAuthorized(granted));
+        SdkAuthorization.authorize(activity, placement::onAuthorized);
         return placement;
     }
 
     private void onAuthorized(boolean granted) {
-        if (destroyed || !granted || !isHostUsable(activityReference.get())) {
-            loading = false;
+        if (destroyed) {
             return;
         }
-        PictureInPictureAd.load(new PictureInPictureAdRequest.Builder(adUnitId).build(), new AdLoadCallback<PictureInPictureAd>() {
+        if (!granted || !isHostUsable(activityReference.get())) {
+            destroy();
+            return;
+        }
+        PictureInPictureAd.load(new PictureInPictureAdRequest.Builder(adUnitId).build(), new AdLoadCallback<>() {
             @Override
             public void onAdLoaded(@NonNull PictureInPictureAd ad) {
                 MainThread.run(() -> {
-                    loading = false;
                     if (destroyed) {
                         ad.destroy();
                         return;
                     }
                     pipAd = ad;
-                    ad.setAdEventCallback(new PictureInPictureAdEventCallback() {
-                        @Override
-                        public void onAdShown() {
-                            MainThread.run(() -> shown = true);
-                        }
-
-                        @Override
-                        public void onAdHidden() {
-                            MainThread.run(() -> shown = false);
-                        }
-                    });
                     update();
                 });
             }
 
             @Override
             public void onAdFailedToLoad(@NonNull LoadAdError error) {
-                MainThread.run(() -> loading = false);
+                MainThread.run(PIPAdPlacement.this::destroy);
             }
         });
     }
 
     private void update() {
         Activity activity = activityReference.get();
-        if (destroyed || pipAd == null) {
+        if (destroyed || pipAd == null || activity == null) {
             return;
         }
         boolean allowed = isHostUsable(activity) && !activity.isInPictureInPictureMode();
         if (allowed && !shown) {
             shown = true;
             pipAd.show(activity, new PictureInPictureAdOptions.Builder().setPosition(position).setPresentationScope(PictureInPictureAdPresentationScope.SCREEN).build());
-        } else if (!allowed && shown) {
+        } else if (!allowed) {
+            hide();
+        }
+    }
+
+    private void hide() {
+        if (pipAd != null && shown) {
             shown = false;
             pipAd.hide();
         }
@@ -131,10 +123,7 @@ public class PIPAdPlacement implements DefaultLifecycleObserver {
 
     @Override
     public void onStop(@NonNull LifecycleOwner owner) {
-        if (pipAd != null && shown) {
-            shown = false;
-            pipAd.hide();
-        }
+        hide();
     }
 
     @Override
@@ -146,6 +135,7 @@ public class PIPAdPlacement implements DefaultLifecycleObserver {
         if (destroyed) {
             return;
         }
+        hide();
         destroyed = true;
         Activity activity = activityReference.get();
         if (activity instanceof LifecycleOwner) {
@@ -155,11 +145,8 @@ public class PIPAdPlacement implements DefaultLifecycleObserver {
             ((OnPictureInPictureModeChangedProvider) activity).removeOnPictureInPictureModeChangedListener(pipModeListener);
         }
         if (pipAd != null) {
-            pipAd.setAdEventCallback(null);
-            pipAd.hide();
             pipAd.destroy();
             pipAd = null;
         }
-        shown = false;
     }
 }

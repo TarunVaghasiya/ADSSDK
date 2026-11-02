@@ -12,12 +12,14 @@ import com.adssetup.adssdk.sdk.BannerAdPlacement;
 import com.adssetup.adssdk.sdk.InterstitialAdPlacement;
 import com.adssetup.adssdk.sdk.NativeAdCustomView;
 import com.adssetup.adssdk.sdk.NativeAdPlacement;
+import com.adssetup.adssdk.sdk.PipAdPlacement;
 
 public class MainActivity extends AppCompatActivity {
     private static final String BANNER_ID = "ca-app-pub-3940256099942544/9214589741";
     private static final String INTERSTITIAL_ID = "ca-app-pub-3940256099942544/1033173712";
     private static final String APP_OPEN_ID = "ca-app-pub-3940256099942544/9257395921";
     private static final String NATIVE_ID = "ca-app-pub-3940256099942544/2247696110";
+    private static final String PIP_ID = "ca-app-pub-3940256099942544/9657123429";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
 
         NativeAdCustomView nativeAdCustomView = findViewById(R.id.nativeAdCustomView);
         NativeAdPlacement.loadNativeAd(this, NATIVE_ID, nativeAdCustomView);
+
+        PipAdPlacement.loadPIPAd(this, PIP_ID);
     }
 
     private void openSecond() {

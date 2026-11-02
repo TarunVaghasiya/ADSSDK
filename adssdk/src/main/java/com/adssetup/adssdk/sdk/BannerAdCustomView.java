@@ -130,6 +130,9 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
     }
 
     private int slotHeight(@NonNull AdSize adSize) {
+        if (size == Size.LARGE && adSize.isInlineAdaptiveBanner()) {
+            return Math.min(adSize.getHeightInPixels(getContext()), Math.round(adSize.getWidthInPixels(getContext()) * 250f / 300f));
+        }
         if (adSize.getHeight() > 0) {
             return adSize.getHeightInPixels(getContext());
         }
@@ -147,8 +150,19 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
         shimmer = (ShimmerFrameLayout) LayoutInflater.from(getContext()).inflate(R.layout.shimmer_layout, this, false);
         shimmer.setShimmer(new Shimmer.AlphaHighlightBuilder().setDuration(1200).build());
         shimmer.setLayoutParams(params);
+        if (size == Size.LARGE) {
+            ((MarginLayoutParams) shimmer.getChildAt(0).getLayoutParams()).setMargins(0, 0, 0, 0);
+        }
         addView(shimmer);
         shimmer.startShimmer();
+    }
+
+    void fitToLoadedAd(@NonNull View adView, @NonNull AdSize loaded) {
+        int height = loaded.getHeightInPixels(getContext());
+        if (size == Size.LARGE && height > 0) {
+            adView.getLayoutParams().height = height;
+            adView.requestLayout();
+        }
     }
 
     void hideShimmer() {

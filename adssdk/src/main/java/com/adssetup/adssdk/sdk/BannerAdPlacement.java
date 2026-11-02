@@ -60,6 +60,7 @@ public class BannerAdPlacement {
                     if (container != null && adView == view) {
                         container.hideShimmer();
                         container.hideFallback();
+                        container.fitToLoadedAd(view, ad.getAdSize());
                         view.setVisibility(View.VISIBLE);
                     }
                 });

@@ -39,15 +39,13 @@ public class PIPAdPlacement implements DefaultLifecycleObserver {
         this.position = position;
     }
 
-    @Nullable
-    public static PIPAdPlacement loadPIPAd(@NonNull Activity activity, @NonNull String adUnitId) {
-        return loadPIPAd(activity, adUnitId, PictureInPictureAdPosition.DEFAULT);
+    public static void loadPIPAd(@NonNull Activity activity, @NonNull String adUnitId) {
+        loadPIPAd(activity, adUnitId, PictureInPictureAdPosition.DEFAULT);
     }
 
-    @Nullable
-    public static PIPAdPlacement loadPIPAd(@NonNull Activity activity, @NonNull String adUnitId, @NonNull PictureInPictureAdPosition position) {
+    public static void loadPIPAd(@NonNull Activity activity, @NonNull String adUnitId, @NonNull PictureInPictureAdPosition position) {
         if (activity.isFinishing() || activity.isDestroyed()) {
-            return null;
+            return;
         }
         PIPAdPlacement placement = new PIPAdPlacement(activity, adUnitId, position);
         if (activity instanceof LifecycleOwner) {
@@ -57,7 +55,6 @@ public class PIPAdPlacement implements DefaultLifecycleObserver {
             ((OnPictureInPictureModeChangedProvider) activity).addOnPictureInPictureModeChangedListener(placement.pipModeListener);
         }
         SdkAuthorization.authorize(activity, placement::onAuthorized);
-        return placement;
     }
 
     private void onAuthorized(boolean granted) {
@@ -131,7 +128,7 @@ public class PIPAdPlacement implements DefaultLifecycleObserver {
         destroy();
     }
 
-    public void destroy() {
+    private void destroy() {
         if (destroyed) {
             return;
         }

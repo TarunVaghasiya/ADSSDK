@@ -51,8 +51,9 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
     private final Context appContext;
     private final String adUnitId;
     private final Callback callback;
-    private final Runnable timeout = () -> finish(false);
+    private final Runnable timeout = this::showFallback;
     private Dialog dialog;
+    private QuizFallbackDialog fallback;
     private AppOpenAd appOpenAd;
     private boolean fromCache;
     private boolean finished;
@@ -198,7 +199,7 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
 
             @Override
             public void onAdFailedToLoad(@NonNull LoadAdError error) {
-                MainThread.run(() -> finish(false));
+                MainThread.run(() -> showFallback());
             }
         });
     }
@@ -217,6 +218,7 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
                 MainThread.run(() -> finish(false));
             }
         });
+        dismissFallback();
         dismissDialog();
         MAIN.removeCallbacks(timeout);
         ad.show(host);
@@ -227,6 +229,30 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
             return false;
         }
         return !(activity instanceof LifecycleOwner) || ((LifecycleOwner) activity).getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED);
+    }
+
+    private void showFallback() {
+        if (finished || fallback != null) {
+            return;
+        }
+        Activity activity = activityReference.get();
+        if (!isUsable(activity)) {
+            finish(false);
+            return;
+        }
+        dismissDialog();
+        fallback = new QuizFallbackDialog(activity, R.layout.qz_app_open_ad_layout, R.id.llQZClose, Color.TRANSPARENT, () -> {
+            fallback = null;
+            finish(false);
+        });
+        fallback.show();
+    }
+
+    private void dismissFallback() {
+        if (fallback != null) {
+            fallback.dismiss();
+            fallback = null;
+        }
     }
 
     @SuppressLint("InflateParams")
@@ -261,6 +287,7 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
         }
         MAIN.removeCallbacks(timeout);
         dismissDialog();
+        dismissFallback();
         Activity activity = activityReference.get();
         if (activity instanceof LifecycleOwner) {
             ((LifecycleOwner) activity).getLifecycle().removeObserver(this);

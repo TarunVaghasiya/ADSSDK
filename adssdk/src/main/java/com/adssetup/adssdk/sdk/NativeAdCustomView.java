@@ -119,7 +119,7 @@ public class NativeAdCustomView extends FrameLayout implements DefaultLifecycleO
 
     void showFallback() {
         hideShimmer();
-        if (!AdsController.isAdsEnabled()) {
+        if (!AdsController.isAdsEnabled() || !AdsController.isQuizFallbackEnabled()) {
             setVisibility(GONE);
             return;
         }

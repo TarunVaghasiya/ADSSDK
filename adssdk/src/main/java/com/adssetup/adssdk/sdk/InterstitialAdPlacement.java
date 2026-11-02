@@ -246,7 +246,7 @@ public class InterstitialAdPlacement implements DefaultLifecycleObserver {
             return;
         }
         Activity activity = activityReference.get();
-        if (!AdsController.isAdsEnabled() || !isUsable(activity)) {
+        if (!AdsController.isAdsEnabled() || !AdsController.isQuizFallbackEnabled() || !isUsable(activity)) {
             finish(false);
             return;
         }

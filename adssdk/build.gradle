@@ -36,6 +36,7 @@ android {
 
 dependencies {
     implementation libs.appcompat
+    implementation libs.cardview
     implementation libs.sdp.android
     implementation libs.facebook.shimmer
     api libs.ads.mobile.sdk

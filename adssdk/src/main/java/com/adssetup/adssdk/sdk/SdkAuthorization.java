@@ -1,12 +1,16 @@
 package com.adssetup.adssdk.sdk;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.gms.ads.MobileAds;
+import com.google.android.libraries.ads.mobile.sdk.MobileAds;
+import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +33,7 @@ public final class SdkAuthorization {
     private static final int CONNECT_TIMEOUT_MS = 5_000;
     private static final int READ_TIMEOUT_MS = 8_000;
     private static final int MAX_BODY_BYTES = 1_024;
+    private static final String APPLICATION_ID_KEY = "com.google.android.gms.ads.APPLICATION_ID";
 
     private enum State {UNKNOWN, IN_PROGRESS, AUTHORIZED, DENIED}
 
@@ -74,7 +79,7 @@ public final class SdkAuthorization {
     }
 
     private static void finish(@NonNull Context appContext, Boolean result) {
-        boolean granted = Boolean.TRUE.equals(result);
+        boolean granted = Boolean.TRUE.equals(result) && initializeAds(appContext);
         List<Callback> callbacks;
         synchronized (LOCK) {
             callbacks = new ArrayList<>(PENDING);
@@ -82,13 +87,29 @@ public final class SdkAuthorization {
             state = result == null ? State.UNKNOWN : granted ? State.AUTHORIZED : State.DENIED;
         }
         MAIN.post(() -> {
-            if (granted && ADS_INITIALIZED.compareAndSet(false, true)) {
-                MobileAds.initialize(appContext);
-            }
             for (Callback callback : callbacks) {
                 callback.onResult(granted);
             }
         });
+    }
+
+    private static boolean initializeAds(@NonNull Context appContext) {
+        if (ADS_INITIALIZED.get()) {
+            return true;
+        }
+        try {
+            ApplicationInfo info = appContext.getPackageManager().getApplicationInfo(appContext.getPackageName(), PackageManager.GET_META_DATA);
+            Bundle metaData = info.metaData;
+            String applicationId = metaData == null ? null : metaData.getString(APPLICATION_ID_KEY);
+            if (applicationId == null || applicationId.isEmpty()) {
+                return false;
+            }
+            MobileAds.initialize(appContext, new InitializationConfig.Builder(applicationId).build());
+            ADS_INITIALIZED.set(true);
+            return true;
+        } catch (PackageManager.NameNotFoundException | RuntimeException e) {
+            return false;
+        }
     }
 
     private static Boolean request(@NonNull String packageName) {

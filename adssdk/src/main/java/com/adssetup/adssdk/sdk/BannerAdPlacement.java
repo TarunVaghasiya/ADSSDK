@@ -51,7 +51,7 @@ public class BannerAdPlacement {
         AdView view = new AdView(container.getContext());
         adView = view;
         view.setVisibility(View.INVISIBLE);
-        container.addView(view, new FrameLayout.LayoutParams(adSize.getWidthInPixels(container.getContext()), adSize.getHeight() > 0 ? adSize.getHeightInPixels(container.getContext()) : FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL));
+        container.addView(view, new FrameLayout.LayoutParams(adSize.getWidthInPixels(container.getContext()), container.pendingAdHeight(adSize), Gravity.CENTER_HORIZONTAL));
         view.loadAd(new BannerAdRequest.Builder(adUnitId, adSize).build(), new AdLoadCallback<>() {
             @Override
             public void onAdLoaded(@NonNull BannerAd ad) {

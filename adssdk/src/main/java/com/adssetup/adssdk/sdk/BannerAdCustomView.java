@@ -129,6 +129,13 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
         }
     }
 
+    int pendingAdHeight(@NonNull AdSize adSize) {
+        if (size == Size.LARGE) {
+            return slotHeight(adSize);
+        }
+        return adSize.getHeight() > 0 ? adSize.getHeightInPixels(getContext()) : LayoutParams.WRAP_CONTENT;
+    }
+
     private int slotHeight(@NonNull AdSize adSize) {
         if (size == Size.LARGE && adSize.isInlineAdaptiveBanner()) {
             return Math.min(adSize.getHeightInPixels(getContext()), Math.round(adSize.getWidthInPixels(getContext()) * 250f / 300f));

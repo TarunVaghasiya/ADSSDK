@@ -24,14 +24,13 @@ public class MainActivity extends AppCompatActivity {
 
         AdsConfig config = AdsConfigManager.get();
         AdsConfig.MainScreen main = config.getMainScreen();
-        boolean adsEnabled = config.isAppAllAdsShow();
 
         View rlAdView = findViewById(R.id.rlAdView);
         BannerAdCustomView bannerAdCustomView = findViewById(R.id.bannerAdCustomView);
         NativeAdCustomView nativeAdCustomView = findViewById(R.id.nativeAdCustomView);
 
-        boolean showBanner = adsEnabled && main.isMainAdShow() && AdsConfigManager.isType(main.getMainAdType(), AdsConfigManager.TYPE_BANNER);
-        boolean showNative = adsEnabled && main.isMainAdShow() && AdsConfigManager.isType(main.getMainAdType(), AdsConfigManager.TYPE_NATIVE);
+        boolean showBanner = main.isMainAdShow() && AdsConfigManager.isType(main.getMainAdType(), AdsConfigManager.TYPE_BANNER);
+        boolean showNative = main.isMainAdShow() && AdsConfigManager.isType(main.getMainAdType(), AdsConfigManager.TYPE_NATIVE);
 
         rlAdView.setVisibility(showBanner || showNative ? View.VISIBLE : View.GONE);
         bannerAdCustomView.setVisibility(showBanner ? View.VISIBLE : View.GONE);
@@ -42,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
             NativeAdPlacement.loadNativeAd(this, main.getMainNativeId(), nativeAdCustomView);
         }
 
-        boolean buttonAdEnabled = adsEnabled && main.isMainButtonAdShow();
+        boolean buttonAdEnabled = main.isMainButtonAdShow();
         findViewById(R.id.tvAds1).setOnClickListener(view -> {
             if (buttonAdEnabled && AdsConfigManager.isType(main.getMainButtonAdType(), AdsConfigManager.TYPE_INTERSTITIAL)) {
                 view.setEnabled(false);
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        if (adsEnabled && main.isMainPipAdShow()) {
+        if (main.isMainPipAdShow()) {
             PIPAdPlacement.loadPIPAd(this, main.getMainPipId());
         }
     }

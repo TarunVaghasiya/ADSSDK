@@ -1,4 +1,7 @@
 <resources>
 
-    <style name="Base.Theme.ADSSDK" parent="Theme.Material3.DayNight.NoActionBar" />
+    <style name="Base.Theme.ADSSDK" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@color/main_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
 </resources>

@@ -4,7 +4,7 @@
     <color name="ad_label">#EBAE00</color>
     <color name="shimmer_block">#40818181</color>
 
-    <color name="card_background">#FFFFFF</color>
+    <color name="card_background">#F6F6F6</color>
     <color name="text_primary">#161616</color>
     <color name="text_secondary">#818181</color>
 </resources>

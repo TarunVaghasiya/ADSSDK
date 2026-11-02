@@ -11,23 +11,22 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdLoader;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.nativead.MediaView;
-import com.google.android.gms.ads.nativead.NativeAd;
-import com.google.android.gms.ads.nativead.NativeAdOptions;
-import com.google.android.gms.ads.nativead.NativeAdView;
+import com.google.android.libraries.ads.mobile.sdk.common.AdChoicesPlacement;
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError;
+import com.google.android.libraries.ads.mobile.sdk.nativead.MediaView;
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAd;
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdLoader;
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdLoaderCallback;
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdRequest;
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdView;
 
 import java.lang.ref.WeakReference;
+import java.util.Collections;
 
 public class NativeAdPlacement {
-    private static final NativeAdOptions AD_OPTIONS = new NativeAdOptions.Builder().setAdChoicesPlacement(NativeAdOptions.ADCHOICES_TOP_RIGHT).build();
-    private static final AdRequest AD_REQUEST = new AdRequest.Builder().build();
     private WeakReference<NativeAdCustomView> containerReference;
-    private AdLoader adLoader;
     private NativeAd nativeAd;
+    private boolean requested;
     private boolean destroyed;
 
     public static void loadNativeAd(@NonNull Activity activity, @NonNull String adUnitId, @NonNull NativeAdCustomView adView) {
@@ -38,22 +37,30 @@ public class NativeAdPlacement {
     }
 
     void load(@NonNull NativeAdCustomView container, @NonNull String adUnitId, @LayoutRes int layoutRes) {
-        if (destroyed || adLoader != null) {
+        if (destroyed || requested) {
             return;
         }
+        requested = true;
         containerReference = new WeakReference<>(container);
         container.showShimmer();
 
-        adLoader = new AdLoader.Builder(container.getContext().getApplicationContext(), adUnitId).forNativeAd(ad -> onLoaded(ad, layoutRes)).withAdListener(new AdListener() {
+        NativeAdRequest request = new NativeAdRequest.Builder(adUnitId, Collections.singletonList(NativeAd.NativeAdType.NATIVE)).setAdChoicesPlacement(AdChoicesPlacement.TOP_RIGHT).build();
+        NativeAdLoader.load(request, new NativeAdLoaderCallback() {
+            @Override
+            public void onNativeAdLoaded(@NonNull NativeAd ad) {
+                MainThread.run(() -> onLoaded(ad, layoutRes));
+            }
+
             @Override
             public void onAdFailedToLoad(@NonNull LoadAdError error) {
-                NativeAdCustomView container = host();
-                if (container != null) {
-                    collapse(container);
-                }
+                MainThread.run(() -> {
+                    NativeAdCustomView container = host();
+                    if (container != null) {
+                        collapse(container);
+                    }
+                });
             }
-        }).withNativeAdOptions(AD_OPTIONS).build();
-        adLoader.loadAd(AD_REQUEST);
+        });
     }
 
     private void onLoaded(@NonNull NativeAd ad, @LayoutRes int layoutRes) {
@@ -97,16 +104,14 @@ public class NativeAdPlacement {
         adView.setBodyView(body);
 
         if (media != null) {
-            adView.setMediaView(media);
-            if (ad.getMediaContent() != null) {
-                media.setMediaContent(ad.getMediaContent());
-            }
+            ad.getMediaContent();
+            media.setMediaContent(ad.getMediaContent());
         }
 
         bindText(action, ad.getCallToAction());
         adView.setCallToActionView(action);
 
-        adView.setNativeAd(ad);
+        adView.registerNativeAd(ad, media);
         return adView;
     }
 
@@ -140,6 +145,5 @@ public class NativeAdPlacement {
             nativeAd.destroy();
             nativeAd = null;
         }
-        adLoader = null;
     }
 }

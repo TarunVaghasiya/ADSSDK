@@ -18,7 +18,7 @@ import androidx.lifecycle.ViewTreeLifecycleOwner;
 
 import com.facebook.shimmer.Shimmer;
 import com.facebook.shimmer.ShimmerFrameLayout;
-import com.google.android.gms.ads.AdSize;
+import com.google.android.libraries.ads.mobile.sdk.banner.AdSize;
 
 import java.lang.ref.WeakReference;
 
@@ -196,20 +196,6 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
             if (observedOwner != null) {
                 observedOwner.getLifecycle().addObserver(this);
             }
-        }
-    }
-
-    @Override
-    public void onPause(@NonNull LifecycleOwner owner) {
-        if (placement != null) {
-            placement.pause();
-        }
-    }
-
-    @Override
-    public void onResume(@NonNull LifecycleOwner owner) {
-        if (placement != null) {
-            placement.resume();
         }
     }
 

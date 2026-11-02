@@ -10,16 +10,16 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.LoadAdError;
+import com.google.android.libraries.ads.mobile.sdk.banner.AdSize;
+import com.google.android.libraries.ads.mobile.sdk.banner.AdView;
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd;
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdRequest;
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback;
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError;
 
 import java.lang.ref.WeakReference;
 
 public class BannerAdPlacement {
-    private static final AdRequest AD_REQUEST = new AdRequest.Builder().build();
     private WeakReference<BannerAdCustomView> containerReference;
     private AdView adView;
     private boolean destroyed;
@@ -48,33 +48,35 @@ public class BannerAdPlacement {
         containerReference = new WeakReference<>(container);
         container.showShimmer(adSize);
 
-        adView = new AdView(container.getContext());
-        adView.setAdUnitId(adUnitId);
-        adView.setAdSize(adSize);
-        adView.setVisibility(View.INVISIBLE);
-        adView.setAdListener(new AdListener() {
+        AdView view = new AdView(container.getContext());
+        adView = view;
+        view.setVisibility(View.INVISIBLE);
+        container.addView(view, new FrameLayout.LayoutParams(adSize.getWidthInPixels(container.getContext()), adSize.getHeight() > 0 ? adSize.getHeightInPixels(container.getContext()) : FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL));
+        view.loadAd(new BannerAdRequest.Builder(adUnitId, adSize).build(), new AdLoadCallback<>() {
             @Override
-            public void onAdLoaded() {
-                BannerAdCustomView container = host();
-                if (container != null) {
-                    container.hideShimmer();
-                    container.hideFallback();
-                    adView.setVisibility(View.VISIBLE);
-                }
+            public void onAdLoaded(@NonNull BannerAd ad) {
+                MainThread.run(() -> {
+                    BannerAdCustomView container = host();
+                    if (container != null && adView == view) {
+                        container.hideShimmer();
+                        container.hideFallback();
+                        view.setVisibility(View.VISIBLE);
+                    }
+                });
             }
 
             @Override
             public void onAdFailedToLoad(@NonNull LoadAdError error) {
-                BannerAdCustomView container = host();
-                if (container != null) {
-                    container.removeView(adView);
-                    releaseAdView();
-                    container.showFallback();
-                }
+                MainThread.run(() -> {
+                    BannerAdCustomView container = host();
+                    if (container != null && adView == view) {
+                        container.removeView(view);
+                        releaseAdView();
+                        container.showFallback();
+                    }
+                });
             }
         });
-        container.addView(adView, new FrameLayout.LayoutParams(adSize.getWidthInPixels(container.getContext()), adSize.getHeight() > 0 ? adSize.getHeightInPixels(container.getContext()) : FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL));
-        adView.loadAd(AD_REQUEST);
     }
 
     void resize(@NonNull BannerAdCustomView container, @NonNull String adUnitId, @NonNull AdSize adSize) {
@@ -89,18 +91,6 @@ public class BannerAdPlacement {
         load(container, adUnitId, adSize);
     }
 
-    void pause() {
-        if (adView != null) {
-            adView.pause();
-        }
-    }
-
-    void resume() {
-        if (adView != null) {
-            adView.resume();
-        }
-    }
-
     @Nullable
     private BannerAdCustomView host() {
         return destroyed || containerReference == null ? null : containerReference.get();
@@ -108,8 +98,6 @@ public class BannerAdPlacement {
 
     private void releaseAdView() {
         if (adView != null) {
-            adView.setAdListener(new AdListener() {
-            });
             adView.destroy();
             adView = null;
         }

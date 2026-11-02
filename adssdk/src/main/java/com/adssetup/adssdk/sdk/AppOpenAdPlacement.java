@@ -18,12 +18,12 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
-import com.google.android.gms.ads.AdError;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.FullScreenContentCallback;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.appopen.AppOpenAd;
-import com.google.android.gms.ads.appopen.AppOpenAd.AppOpenAdLoadCallback;
+import com.google.android.libraries.ads.mobile.sdk.appopen.AppOpenAd;
+import com.google.android.libraries.ads.mobile.sdk.appopen.AppOpenAdEventCallback;
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback;
+import com.google.android.libraries.ads.mobile.sdk.common.AdRequest;
+import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError;
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -40,7 +40,6 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
     private static final long CACHE_EXPIRY_MS = 3 * 60 * 60 * 1000L;
     private static final long RETRY_DELAY_MS = 10_000;
     private static final int PRELOAD_RETRIES = 1;
-    private static final AdRequest AD_REQUEST = new AdRequest.Builder().build();
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static final Map<String, AppOpenAd> CACHE = new HashMap<>();
     private static final Map<String, Long> CACHED_AT = new HashMap<>();
@@ -102,22 +101,26 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
                 handOverToWaiting(false);
                 return;
             }
-            AppOpenAd.load(appContext, adUnitId, AD_REQUEST, new AppOpenAdLoadCallback() {
+            AppOpenAd.load(new AdRequest.Builder(adUnitId).build(), new AdLoadCallback<>() {
                 @Override
                 public void onAdLoaded(@NonNull AppOpenAd ad) {
-                    preloading = false;
-                    CACHE.put(adUnitId, ad);
-                    CACHED_AT.put(adUnitId, SystemClock.elapsedRealtime());
-                    handOverToWaiting(true);
+                    MainThread.run(() -> {
+                        preloading = false;
+                        CACHE.put(adUnitId, ad);
+                        CACHED_AT.put(adUnitId, SystemClock.elapsedRealtime());
+                        handOverToWaiting(true);
+                    });
                 }
 
                 @Override
                 public void onAdFailedToLoad(@NonNull LoadAdError error) {
-                    preloading = false;
-                    handOverToWaiting(false);
-                    if (retriesLeft > 0) {
-                        MAIN.postDelayed(() -> preload(appContext, adUnitId, retriesLeft - 1), RETRY_DELAY_MS);
-                    }
+                    MainThread.run(() -> {
+                        preloading = false;
+                        handOverToWaiting(false);
+                        if (retriesLeft > 0) {
+                            MAIN.postDelayed(() -> preload(appContext, adUnitId, retriesLeft - 1), RETRY_DELAY_MS);
+                        }
+                    });
                 }
             });
         });
@@ -181,19 +184,21 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
             finish(false);
             return;
         }
-        AppOpenAd.load(activity, adUnitId, AD_REQUEST, new AppOpenAdLoadCallback() {
+        AppOpenAd.load(new AdRequest.Builder(adUnitId).build(), new AdLoadCallback<>() {
             @Override
             public void onAdLoaded(@NonNull AppOpenAd ad) {
-                Activity host = activityReference.get();
-                if (finished || !isUsable(host)) {
-                    return;
-                }
-                show(host, ad, false);
+                MainThread.run(() -> {
+                    Activity host = activityReference.get();
+                    if (finished || !isUsable(host)) {
+                        return;
+                    }
+                    show(host, ad, false);
+                });
             }
 
             @Override
             public void onAdFailedToLoad(@NonNull LoadAdError error) {
-                finish(false);
+                MainThread.run(() -> finish(false));
             }
         });
     }
@@ -201,15 +206,15 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
     private void show(@NonNull Activity host, @NonNull AppOpenAd ad, boolean cached) {
         appOpenAd = ad;
         fromCache = cached;
-        ad.setFullScreenContentCallback(new FullScreenContentCallback() {
+        ad.setAdEventCallback(new AppOpenAdEventCallback() {
             @Override
             public void onAdDismissedFullScreenContent() {
-                finish(true);
+                MainThread.run(() -> finish(true));
             }
 
             @Override
-            public void onAdFailedToShowFullScreenContent(@NonNull AdError error) {
-                finish(false);
+            public void onAdFailedToShowFullScreenContent(@NonNull FullScreenContentError error) {
+                MainThread.run(() -> finish(false));
             }
         });
         dismissDialog();
@@ -261,7 +266,7 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
             ((LifecycleOwner) activity).getLifecycle().removeObserver(this);
         }
         if (appOpenAd != null) {
-            appOpenAd.setFullScreenContentCallback(null);
+            appOpenAd.setAdEventCallback(null);
             appOpenAd = null;
         }
         if (fromCache) {

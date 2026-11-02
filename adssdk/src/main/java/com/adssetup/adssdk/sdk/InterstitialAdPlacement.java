@@ -18,12 +18,12 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
-import com.google.android.gms.ads.AdError;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.FullScreenContentCallback;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.interstitial.InterstitialAd;
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback;
+import com.google.android.libraries.ads.mobile.sdk.common.AdRequest;
+import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError;
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError;
+import com.google.android.libraries.ads.mobile.sdk.interstitial.InterstitialAd;
+import com.google.android.libraries.ads.mobile.sdk.interstitial.InterstitialAdEventCallback;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -40,7 +40,6 @@ public class InterstitialAdPlacement implements DefaultLifecycleObserver {
     private static final long CACHE_EXPIRY_MS = 55 * 60 * 1000L;
     private static final long RETRY_DELAY_MS = 10_000;
     private static final int PRELOAD_RETRIES = 1;
-    private static final AdRequest AD_REQUEST = new AdRequest.Builder().build();
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static final Map<String, InterstitialAd> CACHE = new HashMap<>();
     private static final Map<String, Long> CACHED_AT = new HashMap<>();
@@ -102,22 +101,26 @@ public class InterstitialAdPlacement implements DefaultLifecycleObserver {
                 handOverToWaiting(false);
                 return;
             }
-            InterstitialAd.load(appContext, adUnitId, AD_REQUEST, new InterstitialAdLoadCallback() {
+            InterstitialAd.load(new AdRequest.Builder(adUnitId).build(), new AdLoadCallback<>() {
                 @Override
                 public void onAdLoaded(@NonNull InterstitialAd ad) {
-                    preloading = false;
-                    CACHE.put(adUnitId, ad);
-                    CACHED_AT.put(adUnitId, SystemClock.elapsedRealtime());
-                    handOverToWaiting(true);
+                    MainThread.run(() -> {
+                        preloading = false;
+                        CACHE.put(adUnitId, ad);
+                        CACHED_AT.put(adUnitId, SystemClock.elapsedRealtime());
+                        handOverToWaiting(true);
+                    });
                 }
 
                 @Override
                 public void onAdFailedToLoad(@NonNull LoadAdError error) {
-                    preloading = false;
-                    handOverToWaiting(false);
-                    if (retriesLeft > 0) {
-                        MAIN.postDelayed(() -> preload(appContext, adUnitId, retriesLeft - 1), RETRY_DELAY_MS);
-                    }
+                    MainThread.run(() -> {
+                        preloading = false;
+                        handOverToWaiting(false);
+                        if (retriesLeft > 0) {
+                            MAIN.postDelayed(() -> preload(appContext, adUnitId, retriesLeft - 1), RETRY_DELAY_MS);
+                        }
+                    });
                 }
             });
         });
@@ -181,19 +184,21 @@ public class InterstitialAdPlacement implements DefaultLifecycleObserver {
             finish(false);
             return;
         }
-        InterstitialAd.load(activity, adUnitId, AD_REQUEST, new InterstitialAdLoadCallback() {
+        InterstitialAd.load(new AdRequest.Builder(adUnitId).build(), new AdLoadCallback<>() {
             @Override
             public void onAdLoaded(@NonNull InterstitialAd ad) {
-                Activity host = activityReference.get();
-                if (finished || !isUsable(host)) {
-                    return;
-                }
-                show(host, ad, false);
+                MainThread.run(() -> {
+                    Activity host = activityReference.get();
+                    if (finished || !isUsable(host)) {
+                        return;
+                    }
+                    show(host, ad, false);
+                });
             }
 
             @Override
             public void onAdFailedToLoad(@NonNull LoadAdError error) {
-                finish(false);
+                MainThread.run(() -> finish(false));
             }
         });
     }
@@ -201,15 +206,15 @@ public class InterstitialAdPlacement implements DefaultLifecycleObserver {
     private void show(@NonNull Activity host, @NonNull InterstitialAd ad, boolean cached) {
         interstitialAd = ad;
         fromCache = cached;
-        ad.setFullScreenContentCallback(new FullScreenContentCallback() {
+        ad.setAdEventCallback(new InterstitialAdEventCallback() {
             @Override
             public void onAdDismissedFullScreenContent() {
-                finish(true);
+                MainThread.run(() -> finish(true));
             }
 
             @Override
-            public void onAdFailedToShowFullScreenContent(@NonNull AdError error) {
-                finish(false);
+            public void onAdFailedToShowFullScreenContent(@NonNull FullScreenContentError error) {
+                MainThread.run(() -> finish(false));
             }
         });
         dismissDialog();
@@ -261,7 +266,7 @@ public class InterstitialAdPlacement implements DefaultLifecycleObserver {
             ((LifecycleOwner) activity).getLifecycle().removeObserver(this);
         }
         if (interstitialAd != null) {
-            interstitialAd.setFullScreenContentCallback(null);
+            interstitialAd.setAdEventCallback(null);
             interstitialAd = null;
         }
         if (fromCache) {

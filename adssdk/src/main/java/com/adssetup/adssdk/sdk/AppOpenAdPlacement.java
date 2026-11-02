@@ -3,16 +3,19 @@ package com.adssetup.adssdk.sdk;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.Window;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.google.android.gms.ads.AdError;
@@ -23,33 +26,55 @@ import com.google.android.gms.ads.appopen.AppOpenAd;
 import com.google.android.gms.ads.appopen.AppOpenAd.AppOpenAdLoadCallback;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AppOpenAdPlacement implements DefaultLifecycleObserver {
-    private static final long TIMEOUT_MS = 10_000;
-    private static final AdRequest AD_REQUEST = new AdRequest.Builder().build();
-    private static final Handler MAIN = new Handler(Looper.getMainLooper());
-    private static boolean inFlight;
-
-    private final WeakReference<Activity> activityReference;
-    private final String adUnitId;
-    private final Callback callback;
-    private final Runnable timeout = () -> finish(false);
-    private Dialog dialog;
-    private AppOpenAd appOpenAd;
-    private boolean finished;
+    public static final String MODE_PRELOAD = "preload";
 
     public interface Callback {
         void onFinished(boolean shown);
     }
 
+    private static final long TIMEOUT_MS = 10_000;
+    private static final long CACHE_EXPIRY_MS = 3 * 60 * 60 * 1000L;
+    private static final long RETRY_DELAY_MS = 10_000;
+    private static final int PRELOAD_RETRIES = 1;
+    private static final AdRequest AD_REQUEST = new AdRequest.Builder().build();
+    private static final Handler MAIN = new Handler(Looper.getMainLooper());
+    private static final Map<String, AppOpenAd> CACHE = new HashMap<>();
+    private static final Map<String, Long> CACHED_AT = new HashMap<>();
+    private static boolean inFlight;
+    private static boolean preloading;
+    private static AppOpenAdPlacement waitingForPreload;
+
+    private final WeakReference<Activity> activityReference;
+    private final Context appContext;
+    private final String adUnitId;
+    private final Callback callback;
+    private final Runnable timeout = () -> finish(false);
+    private Dialog dialog;
+    private AppOpenAd appOpenAd;
+    private boolean fromCache;
+    private boolean finished;
+
     private AppOpenAdPlacement(@NonNull Activity activity, @NonNull String adUnitId, @Nullable Callback callback) {
         this.activityReference = new WeakReference<>(activity);
+        this.appContext = activity.getApplicationContext();
         this.adUnitId = adUnitId;
         this.callback = callback;
     }
 
-    public static void loadAppOpenAd(@NonNull Activity activity, @NonNull String adUnitId, @Nullable Callback callback) {
-        if (inFlight || activity.isFinishing() || activity.isDestroyed()) {
+    public static void loadAppOpenAd(@NonNull Activity activity, @NonNull String adUnitId, @NonNull String mode, @Nullable Callback callback) {
+        if (activity.isFinishing() || activity.isDestroyed()) {
+            return;
+        }
+        boolean preloadMode = MODE_PRELOAD.equals(mode);
+        if (preloadMode && callback == null) {
+            preload(activity.getApplicationContext(), adUnitId, PRELOAD_RETRIES);
+            return;
+        }
+        if (inFlight) {
             return;
         }
         inFlight = true;
@@ -58,43 +83,112 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
             ((LifecycleOwner) activity).getLifecycle().addObserver(placement);
         }
         MAIN.postDelayed(placement.timeout, TIMEOUT_MS);
-        SdkAuthorization.authorize(activity, placement::onAuthorized);
+        AppOpenAd cached = preloadMode ? takeCachedAd(adUnitId, true) : null;
+        if (cached != null) {
+            placement.show(activity, cached, true);
+        } else {
+            SdkAuthorization.authorize(activity, granted -> placement.onAuthorized(granted, preloadMode));
+        }
     }
 
-    private void onAuthorized(boolean granted) {
+    private static void preload(@NonNull Context appContext, @NonNull String adUnitId, int retriesLeft) {
+        if (preloading || takeCachedAd(adUnitId, false) != null) {
+            return;
+        }
+        preloading = true;
+        SdkAuthorization.authorize(appContext, granted -> {
+            if (!granted) {
+                preloading = false;
+                handOverToWaiting(false);
+                return;
+            }
+            AppOpenAd.load(appContext, adUnitId, AD_REQUEST, new AppOpenAdLoadCallback() {
+                @Override
+                public void onAdLoaded(@NonNull AppOpenAd ad) {
+                    preloading = false;
+                    CACHE.put(adUnitId, ad);
+                    CACHED_AT.put(adUnitId, SystemClock.elapsedRealtime());
+                    handOverToWaiting(true);
+                }
+
+                @Override
+                public void onAdFailedToLoad(@NonNull LoadAdError error) {
+                    preloading = false;
+                    handOverToWaiting(false);
+                    if (retriesLeft > 0) {
+                        MAIN.postDelayed(() -> preload(appContext, adUnitId, retriesLeft - 1), RETRY_DELAY_MS);
+                    }
+                }
+            });
+        });
+    }
+
+    private static void handOverToWaiting(boolean loaded) {
+        AppOpenAdPlacement waiting = waitingForPreload;
+        waitingForPreload = null;
+        if (waiting == null || waiting.finished) {
+            return;
+        }
+        Activity activity = waiting.activityReference.get();
+        AppOpenAd ad = loaded ? takeCachedAd(waiting.adUnitId, true) : null;
+        if (ad != null && isUsable(activity)) {
+            waiting.show(activity, ad, true);
+        } else {
+            waiting.requestAd();
+        }
+    }
+
+    @Nullable
+    private static AppOpenAd takeCachedAd(@NonNull String adUnitId, boolean remove) {
+        AppOpenAd ad = CACHE.get(adUnitId);
+        Long cachedAt = CACHED_AT.get(adUnitId);
+        if (ad == null || cachedAt == null) {
+            return null;
+        }
+        boolean expired = SystemClock.elapsedRealtime() - cachedAt >= CACHE_EXPIRY_MS;
+        if (remove || expired) {
+            CACHE.remove(adUnitId);
+            CACHED_AT.remove(adUnitId);
+        }
+        return expired ? null : ad;
+    }
+
+    private void onAuthorized(boolean granted, boolean preloadMode) {
         Activity activity = activityReference.get();
         if (finished) {
             return;
         }
-        if (!granted || activity == null || activity.isFinishing() || activity.isDestroyed()) {
+        if (!granted || !isUsable(activity)) {
             finish(false);
             return;
         }
-        if (dialog == null) {
-            showDialog(activity);
+        showDialog(activity);
+        if (preloadMode && preloading) {
+            waitingForPreload = this;
+            return;
+        }
+        AppOpenAd cached = preloadMode ? takeCachedAd(adUnitId, true) : null;
+        if (cached != null) {
+            show(activity, cached, true);
+        } else {
+            requestAd();
+        }
+    }
+
+    private void requestAd() {
+        Activity activity = activityReference.get();
+        if (finished || !isUsable(activity)) {
+            finish(false);
+            return;
         }
         AppOpenAd.load(activity, adUnitId, AD_REQUEST, new AppOpenAdLoadCallback() {
             @Override
             public void onAdLoaded(@NonNull AppOpenAd ad) {
                 Activity host = activityReference.get();
-                if (finished || host == null || host.isFinishing() || host.isDestroyed()) {
+                if (finished || !isUsable(host)) {
                     return;
                 }
-                appOpenAd = ad;
-                ad.setFullScreenContentCallback(new FullScreenContentCallback() {
-                    @Override
-                    public void onAdDismissedFullScreenContent() {
-                        finish(true);
-                    }
-
-                    @Override
-                    public void onAdFailedToShowFullScreenContent(@NonNull AdError error) {
-                        finish(false);
-                    }
-                });
-                dismissDialog();
-                MAIN.removeCallbacks(timeout);
-                ad.show(host);
+                show(host, ad, false);
             }
 
             @Override
@@ -102,6 +196,32 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
                 finish(false);
             }
         });
+    }
+
+    private void show(@NonNull Activity host, @NonNull AppOpenAd ad, boolean cached) {
+        appOpenAd = ad;
+        fromCache = cached;
+        ad.setFullScreenContentCallback(new FullScreenContentCallback() {
+            @Override
+            public void onAdDismissedFullScreenContent() {
+                finish(true);
+            }
+
+            @Override
+            public void onAdFailedToShowFullScreenContent(@NonNull AdError error) {
+                finish(false);
+            }
+        });
+        dismissDialog();
+        MAIN.removeCallbacks(timeout);
+        ad.show(host);
+    }
+
+    private static boolean isUsable(@Nullable Activity activity) {
+        if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+            return false;
+        }
+        return !(activity instanceof LifecycleOwner) || ((LifecycleOwner) activity).getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED);
     }
 
     @SuppressLint("InflateParams")
@@ -131,6 +251,9 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
         }
         finished = true;
         inFlight = false;
+        if (waitingForPreload == this) {
+            waitingForPreload = null;
+        }
         MAIN.removeCallbacks(timeout);
         dismissDialog();
         Activity activity = activityReference.get();
@@ -140,6 +263,9 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
         if (appOpenAd != null) {
             appOpenAd.setFullScreenContentCallback(null);
             appOpenAd = null;
+        }
+        if (fromCache) {
+            preload(appContext, adUnitId, PRELOAD_RETRIES);
         }
         if (callback != null) {
             callback.onFinished(shown);

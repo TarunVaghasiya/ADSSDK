@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#CC000000"
@@ -29,10 +28,9 @@
             android:layout_weight="1"
             android:fontFamily="@font/fig_tree_medium"
             android:singleLine="true"
-            android:text="Continue to app"
+            android:text="@string/ad_continue_to_app"
             android:textColor="@color/text_primary"
-            android:textSize="@dimen/_12sdp"
-            tools:ignore="HardcodedText" />
+            android:textSize="@dimen/_12sdp" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="@dimen/_18sdp"
@@ -66,10 +64,9 @@
             android:maxLines="1"
             android:paddingHorizontal="@dimen/_5sdp"
             android:singleLine="true"
-            android:text="Install"
+            android:text="@string/ad_install"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/_12sdp"
-            tools:ignore="HardcodedText" />
+            android:textSize="@dimen/_12sdp" />
 
     </LinearLayout>
 

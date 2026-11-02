@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/main_background"
@@ -30,11 +29,10 @@
             android:background="@drawable/custom_button"
             android:fontFamily="@font/fig_tree_bold"
             android:gravity="center"
-            android:text="Interstitial 1"
+            android:text="@string/btn_interstitial_1"
             android:textAllCaps="true"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/_12sdp"
-            tools:ignore="HardcodedText" />
+            android:textSize="@dimen/_12sdp" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvAppOpen1"
@@ -45,11 +43,10 @@
             android:background="@drawable/custom_button"
             android:fontFamily="@font/fig_tree_bold"
             android:gravity="center"
-            android:text="APP OPEN 1"
+            android:text="@string/btn_app_open_1"
             android:textAllCaps="true"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/_12sdp"
-            tools:ignore="HardcodedText" />
+            android:textSize="@dimen/_12sdp" />
 
     </LinearLayout>
 

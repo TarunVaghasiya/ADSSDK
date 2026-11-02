@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="native_ad_attribution">AD</string>
+    <string name="ad_headline_placeholder">Ad Headline</string>
+    <string name="ad_body_placeholder">Ad Body</string>
+    <string name="ad_install">Install</string>
+    <string name="ad_loading">LOADING ADS…</string>
+    <string name="ad_continue_to_app">Continue to app</string>
 </resources>

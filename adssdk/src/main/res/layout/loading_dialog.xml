@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@drawable/custom_dialog_bg"
@@ -19,10 +18,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_10sdp"
         android:fontFamily="@font/fig_tree_bold"
-        android:text="LOADING ADS..."
+        android:text="@string/ad_loading"
         android:textAllCaps="true"
         android:textColor="@color/text_primary"
-        android:textSize="@dimen/_11sdp"
-        tools:ignore="HardcodedText" />
+        android:textSize="@dimen/_11sdp" />
 
 </LinearLayout>

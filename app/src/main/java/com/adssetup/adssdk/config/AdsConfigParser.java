@@ -39,6 +39,8 @@ final class AdsConfigParser {
         config.setAppAllAdsShow(root.optBoolean("App_All_Ads_Show", config.isAppAllAdsShow()));
         config.setAdPriority(string(root, "Ad_Priority", config.getAdPriority()));
         config.setGoogleAdFailedShowQuiz(root.optBoolean("Google_Ad_Failed_Show_Quiz", config.isGoogleAdFailedShowQuiz()));
+        config.setInterstitialLoadType(string(root, "Interstitial_Load_Type", config.getInterstitialLoadType()));
+        config.setAppOpenLoadType(string(root, "App_Open_Load_Type", config.getAppOpenLoadType()));
 
         JSONObject main = root.optJSONObject("MainScreen");
         if (main != null) {

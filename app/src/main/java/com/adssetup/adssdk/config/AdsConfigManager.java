@@ -20,6 +20,7 @@ public final class AdsConfigManager {
         if (config == null) {
             config = AdsConfigParser.parse(context.getApplicationContext());
             AdsController.setAdsEnabled(config.isAppAllAdsShow());
+            AdsController.setQuizFallbackEnabled(config.isGoogleAdFailedShowQuiz());
         }
     }
 
@@ -29,6 +30,10 @@ public final class AdsConfigManager {
             config = new AdsConfig();
         }
         return config;
+    }
+
+    public static String loadMode(String configured) {
+        return "preload".equalsIgnoreCase(configured) ? "preload" : "load";
     }
 
     public static boolean isType(String configured, @NonNull String type) {

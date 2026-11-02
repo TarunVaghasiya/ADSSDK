@@ -37,7 +37,8 @@
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="@dimen/_18sdp"
             android:layout_height="@dimen/_18sdp"
-            android:src="@drawable/ic_arrow" />
+            android:src="@drawable/ic_arrow"
+            android:tint="@color/text_primary" />
 
     </LinearLayout>
 

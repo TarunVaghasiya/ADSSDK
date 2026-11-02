@@ -58,6 +58,7 @@ public class BannerAdPlacement {
                 BannerAdCustomView container = host();
                 if (container != null) {
                     container.hideShimmer();
+                    container.hideFallback();
                     adView.setVisibility(View.VISIBLE);
                 }
             }
@@ -66,9 +67,9 @@ public class BannerAdPlacement {
             public void onAdFailedToLoad(@NonNull LoadAdError error) {
                 BannerAdCustomView container = host();
                 if (container != null) {
-                    container.hideShimmer();
-                    container.setVisibility(View.GONE);
+                    container.removeView(adView);
                     releaseAdView();
+                    container.showFallback();
                 }
             }
         });
@@ -77,11 +78,13 @@ public class BannerAdPlacement {
     }
 
     void resize(@NonNull BannerAdCustomView container, @NonNull String adUnitId, @NonNull AdSize adSize) {
-        if (destroyed || adView == null) {
+        if (destroyed) {
             return;
         }
-        container.removeView(adView);
-        releaseAdView();
+        if (adView != null) {
+            container.removeView(adView);
+            releaseAdView();
+        }
         container.hideShimmer();
         load(container, adUnitId, adSize);
     }

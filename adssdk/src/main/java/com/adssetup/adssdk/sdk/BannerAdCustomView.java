@@ -6,8 +6,10 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -26,18 +28,22 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
     private boolean authorized;
     private BannerAdPlacement placement;
     private ShimmerFrameLayout shimmer;
+    private View fallback;
     private LifecycleOwner observedOwner;
     private boolean destroyed;
     private String adUnitId;
     private AdSize adSize;
 
     public enum Size {
-        SMALL(0f), MEDIUM(0.2f), LARGE(0.4f);
+        SMALL(0f, R.layout.qz_small_ad_layout), MEDIUM(0.2f, R.layout.qz_medium_ad_layout), LARGE(0.4f, R.layout.qz_large_ad_layout);
 
         final float maxHeightFraction;
+        @LayoutRes
+        final int fallbackRes;
 
-        Size(float maxHeightFraction) {
+        Size(float maxHeightFraction, @LayoutRes int fallbackRes) {
             this.maxHeightFraction = maxHeightFraction;
+            this.fallbackRes = fallbackRes;
         }
     }
 
@@ -60,8 +66,12 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
     }
 
     void load(@NonNull String adUnitId) {
-        if (destroyed || placement != null) {
+        if (destroyed || (placement != null && fallback == null)) {
             return;
+        }
+        if (placement != null) {
+            hideFallback();
+            placement.destroy();
         }
         placement = new BannerAdPlacement();
         this.adUnitId = adUnitId;
@@ -128,6 +138,7 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
     }
 
     void showShimmer(@NonNull AdSize adSize) {
+        hideFallback();
         LayoutParams params = new LayoutParams(adSize.getWidthInPixels(getContext()), slotHeight(adSize), Gravity.CENTER_HORIZONTAL);
         if (shimmer != null) {
             shimmer.setLayoutParams(params);
@@ -148,9 +159,25 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
         }
     }
 
+    void showFallback() {
+        hideShimmer();
+        if (fallback == null && !destroyed) {
+            fallback = LayoutInflater.from(getContext()).inflate(size.fallbackRes, this, false);
+            addView(fallback);
+        }
+    }
+
+    void hideFallback() {
+        if (fallback != null) {
+            removeView(fallback);
+            fallback = null;
+        }
+    }
+
     public void destroy() {
         destroyed = true;
         hideShimmer();
+        hideFallback();
         if (observedOwner != null) {
             observedOwner.getLifecycle().removeObserver(this);
             observedOwner = null;

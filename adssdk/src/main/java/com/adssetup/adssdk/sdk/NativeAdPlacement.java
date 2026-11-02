@@ -64,6 +64,7 @@ public class NativeAdPlacement {
         }
         try {
             container.hideShimmer();
+            container.hideFallback();
             container.addView(inflateAd(container, ad, layoutRes));
             nativeAd = ad;
         } catch (RuntimeException e) {
@@ -118,8 +119,7 @@ public class NativeAdPlacement {
     }
 
     private static void collapse(@NonNull NativeAdCustomView container) {
-        container.hideShimmer();
-        container.setVisibility(View.GONE);
+        container.showFallback();
     }
 
     @Nullable

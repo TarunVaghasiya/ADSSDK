@@ -28,17 +28,21 @@ public class NativeAdCustomView extends FrameLayout implements DefaultLifecycleO
     private NativeAdPlacement placement;
     private ShimmerFrameLayout shimmer;
     private View sizeReference;
+    private View fallback;
     private LifecycleOwner observedOwner;
     private boolean destroyed;
 
     public enum Size {
-        LARGE(R.layout.native_large_ad_layout), MEDIUM(R.layout.native_medium_ad_layout), SMALL(R.layout.native_small_ad_layout);
+        LARGE(R.layout.native_large_ad_layout, R.layout.qz_large_ad_layout), MEDIUM(R.layout.native_medium_ad_layout, R.layout.qz_medium_ad_layout), SMALL(R.layout.native_small_ad_layout, R.layout.qz_small_ad_layout);
 
         @LayoutRes
         final int layoutRes;
+        @LayoutRes
+        final int fallbackRes;
 
-        Size(@LayoutRes int layoutRes) {
+        Size(@LayoutRes int layoutRes, @LayoutRes int fallbackRes) {
             this.layoutRes = layoutRes;
+            this.fallbackRes = fallbackRes;
         }
     }
 
@@ -62,8 +66,12 @@ public class NativeAdCustomView extends FrameLayout implements DefaultLifecycleO
     }
 
     void load(@NonNull String adUnitId) {
-        if (destroyed || placement != null) {
+        if (destroyed || (placement != null && fallback == null)) {
             return;
+        }
+        if (placement != null) {
+            hideFallback();
+            placement.destroy();
         }
         placement = new NativeAdPlacement();
         showShimmer();
@@ -84,6 +92,7 @@ public class NativeAdCustomView extends FrameLayout implements DefaultLifecycleO
     }
 
     void showShimmer() {
+        hideFallback();
         if (shimmer != null) {
             return;
         }
@@ -108,6 +117,21 @@ public class NativeAdCustomView extends FrameLayout implements DefaultLifecycleO
         }
     }
 
+    void showFallback() {
+        hideShimmer();
+        if (fallback == null && !destroyed) {
+            fallback = LayoutInflater.from(getContext()).inflate(size.fallbackRes, this, false);
+            addView(fallback);
+        }
+    }
+
+    void hideFallback() {
+        if (fallback != null) {
+            removeView(fallback);
+            fallback = null;
+        }
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         if (shimmer != null) {
@@ -121,6 +145,7 @@ public class NativeAdCustomView extends FrameLayout implements DefaultLifecycleO
     public void destroy() {
         destroyed = true;
         hideShimmer();
+        hideFallback();
         if (observedOwner != null) {
             observedOwner.getLifecycle().removeObserver(this);
             observedOwner = null;

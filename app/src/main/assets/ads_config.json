@@ -2,6 +2,8 @@
   "App_All_Ads_Show": true,
   "Ad_Priority": "google",
   "Google_Ad_Failed_Show_Quiz": true,
+  "Interstitial_Load_Type": "load",
+  "App_Open_Load_Type": "preload",
   "MainScreen": {
     "Main_Ad_Show": true,
     "Main_Ad_Type": "banner",

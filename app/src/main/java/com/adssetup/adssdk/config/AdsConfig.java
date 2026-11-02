@@ -4,6 +4,8 @@ public class AdsConfig {
     private boolean appAllAdsShow = true;
     private String adPriority = "google";
     private boolean googleAdFailedShowQuiz = true;
+    private String interstitialLoadType = "load";
+    private String appOpenLoadType = "preload";
     private final MainScreen mainScreen = new MainScreen();
     private final SecondScreen secondScreen = new SecondScreen();
 
@@ -29,6 +31,22 @@ public class AdsConfig {
 
     public void setGoogleAdFailedShowQuiz(boolean googleAdFailedShowQuiz) {
         this.googleAdFailedShowQuiz = googleAdFailedShowQuiz;
+    }
+
+    public String getInterstitialLoadType() {
+        return interstitialLoadType;
+    }
+
+    public void setInterstitialLoadType(String interstitialLoadType) {
+        this.interstitialLoadType = interstitialLoadType;
+    }
+
+    public String getAppOpenLoadType() {
+        return appOpenLoadType;
+    }
+
+    public void setAppOpenLoadType(String appOpenLoadType) {
+        this.appOpenLoadType = appOpenLoadType;
     }
 
     public MainScreen getMainScreen() {

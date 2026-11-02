@@ -47,6 +47,9 @@ public class PIPAdPlacement implements DefaultLifecycleObserver {
         if (activity.isFinishing() || activity.isDestroyed()) {
             return;
         }
+        if (!AdsController.isAdsEnabled()) {
+            return;
+        }
         PIPAdPlacement placement = new PIPAdPlacement(activity, adUnitId, position);
         if (activity instanceof LifecycleOwner) {
             ((LifecycleOwner) activity).getLifecycle().addObserver(placement);
@@ -61,7 +64,7 @@ public class PIPAdPlacement implements DefaultLifecycleObserver {
         if (destroyed) {
             return;
         }
-        if (!granted || !isHostUsable(activityReference.get())) {
+        if (!granted || !AdsController.isAdsEnabled() || !isHostUsable(activityReference.get())) {
             destroy();
             return;
         }
@@ -69,8 +72,9 @@ public class PIPAdPlacement implements DefaultLifecycleObserver {
             @Override
             public void onAdLoaded(@NonNull PictureInPictureAd ad) {
                 MainThread.run(() -> {
-                    if (destroyed) {
+                    if (destroyed || !AdsController.isAdsEnabled()) {
                         ad.destroy();
+                        destroy();
                         return;
                     }
                     pipAd = ad;
@@ -87,6 +91,10 @@ public class PIPAdPlacement implements DefaultLifecycleObserver {
 
     private void update() {
         Activity activity = activityReference.get();
+        if (!AdsController.isAdsEnabled()) {
+            destroy();
+            return;
+        }
         if (destroyed || pipAd == null || activity == null) {
             return;
         }

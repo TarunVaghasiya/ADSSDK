@@ -82,7 +82,7 @@ public class NativeAdCustomView extends FrameLayout implements DefaultLifecycleO
             if (view == null || view.destroyed) {
                 return;
             }
-            if (authorized) {
+            if (authorized && AdsController.isAdsEnabled()) {
                 view.placement.load(view, adUnitId, view.size.layoutRes);
             } else {
                 view.hideShimmer();
@@ -119,6 +119,10 @@ public class NativeAdCustomView extends FrameLayout implements DefaultLifecycleO
 
     void showFallback() {
         hideShimmer();
+        if (!AdsController.isAdsEnabled()) {
+            setVisibility(GONE);
+            return;
+        }
         if (fallback == null && !destroyed) {
             fallback = LayoutInflater.from(getContext()).inflate(size.fallbackRes, this, false);
             addView(fallback);

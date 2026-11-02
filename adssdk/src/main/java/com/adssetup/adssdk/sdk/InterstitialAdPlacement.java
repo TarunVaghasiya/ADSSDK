@@ -69,6 +69,12 @@ public class InterstitialAdPlacement implements DefaultLifecycleObserver {
         if (activity.isFinishing() || activity.isDestroyed()) {
             return;
         }
+        if (!AdsController.isAdsEnabled()) {
+            if (callback != null) {
+                callback.onFinished(false);
+            }
+            return;
+        }
         boolean preloadMode = MODE_PRELOAD.equals(mode);
         if (preloadMode && callback == null) {
             preload(activity.getApplicationContext(), adUnitId, PRELOAD_RETRIES);
@@ -92,12 +98,12 @@ public class InterstitialAdPlacement implements DefaultLifecycleObserver {
     }
 
     private static void preload(@NonNull Context appContext, @NonNull String adUnitId, int retriesLeft) {
-        if (preloading || takeCachedAd(adUnitId, false) != null) {
+        if (preloading || !AdsController.isAdsEnabled() || takeCachedAd(adUnitId, false) != null) {
             return;
         }
         preloading = true;
         SdkAuthorization.authorize(appContext, granted -> {
-            if (!granted) {
+            if (!granted || !AdsController.isAdsEnabled()) {
                 preloading = false;
                 handOverToWaiting(false);
                 return;
@@ -162,7 +168,7 @@ public class InterstitialAdPlacement implements DefaultLifecycleObserver {
         if (finished) {
             return;
         }
-        if (!granted || !isUsable(activity)) {
+        if (!granted || !AdsController.isAdsEnabled() || !isUsable(activity)) {
             finish(false);
             return;
         }
@@ -181,7 +187,7 @@ public class InterstitialAdPlacement implements DefaultLifecycleObserver {
 
     private void requestAd() {
         Activity activity = activityReference.get();
-        if (finished || !isUsable(activity)) {
+        if (finished || !AdsController.isAdsEnabled() || !isUsable(activity)) {
             finish(false);
             return;
         }
@@ -205,6 +211,10 @@ public class InterstitialAdPlacement implements DefaultLifecycleObserver {
     }
 
     private void show(@NonNull Activity host, @NonNull InterstitialAd ad, boolean cached) {
+        if (!AdsController.isAdsEnabled()) {
+            finish(false);
+            return;
+        }
         interstitialAd = ad;
         fromCache = cached;
         ad.setAdEventCallback(new InterstitialAdEventCallback() {
@@ -236,7 +246,7 @@ public class InterstitialAdPlacement implements DefaultLifecycleObserver {
             return;
         }
         Activity activity = activityReference.get();
-        if (!isUsable(activity)) {
+        if (!AdsController.isAdsEnabled() || !isUsable(activity)) {
             finish(false);
             return;
         }

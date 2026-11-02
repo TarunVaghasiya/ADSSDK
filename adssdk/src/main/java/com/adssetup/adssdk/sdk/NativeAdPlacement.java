@@ -33,11 +33,15 @@ public class NativeAdPlacement {
         if (activity.isFinishing() || activity.isDestroyed()) {
             return;
         }
+        if (!AdsController.isAdsEnabled()) {
+            adView.setVisibility(View.GONE);
+            return;
+        }
         adView.load(adUnitId);
     }
 
     void load(@NonNull NativeAdCustomView container, @NonNull String adUnitId, @LayoutRes int layoutRes) {
-        if (destroyed || requested) {
+        if (destroyed || requested || !AdsController.isAdsEnabled()) {
             return;
         }
         requested = true;

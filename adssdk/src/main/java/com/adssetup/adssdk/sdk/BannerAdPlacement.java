@@ -28,6 +28,10 @@ public class BannerAdPlacement {
         if (activity.isFinishing() || activity.isDestroyed()) {
             return;
         }
+        if (!AdsController.isAdsEnabled()) {
+            bannerView.setVisibility(View.GONE);
+            return;
+        }
         bannerView.load(adUnitId);
     }
 
@@ -42,7 +46,7 @@ public class BannerAdPlacement {
     }
 
     void load(@NonNull BannerAdCustomView container, @NonNull String adUnitId, @NonNull AdSize adSize) {
-        if (destroyed || adView != null) {
+        if (destroyed || adView != null || !AdsController.isAdsEnabled()) {
             return;
         }
         containerReference = new WeakReference<>(container);

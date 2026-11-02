@@ -4,6 +4,8 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.adssetup.adssdk.sdk.AdsController;
+
 public final class AdsConfigManager {
     private static AdsConfig config;
     public static final String TYPE_BANNER = "banner";
@@ -17,6 +19,7 @@ public final class AdsConfigManager {
     public static synchronized void load(@NonNull Context context) {
         if (config == null) {
             config = AdsConfigParser.parse(context.getApplicationContext());
+            AdsController.setAdsEnabled(config.isAppAllAdsShow());
         }
     }
 

@@ -83,7 +83,7 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
             if (view == null || view.destroyed) {
                 return;
             }
-            if (granted) {
+            if (granted && AdsController.isAdsEnabled()) {
                 view.authorized = true;
                 view.start();
             } else {
@@ -182,6 +182,10 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
 
     void showFallback() {
         hideShimmer();
+        if (!AdsController.isAdsEnabled()) {
+            setVisibility(GONE);
+            return;
+        }
         if (fallback == null && !destroyed) {
             fallback = LayoutInflater.from(getContext()).inflate(size.fallbackRes, this, false);
             addView(fallback);

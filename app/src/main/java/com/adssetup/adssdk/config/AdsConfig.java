@@ -45,7 +45,7 @@ public class AdsConfig {
         private String mainBannerId = "ca-app-pub-3940256099942544/9214589741";
         private String mainNativeId = "ca-app-pub-3940256099942544/2247696110";
         private boolean mainButtonAdShow = true;
-        private String mainButtonType = "inter";
+        private String mainButtonAdType = "inter";
         private String mainInterstitialId = "ca-app-pub-3940256099942544/1033173712";
         private String mainAppOpenId = "ca-app-pub-3940256099942544/9257395921";
         private boolean mainPipAdShow = true;
@@ -91,12 +91,12 @@ public class AdsConfig {
             this.mainButtonAdShow = mainButtonAdShow;
         }
 
-        public String getMainButtonType() {
-            return mainButtonType;
+        public String getMainButtonAdType() {
+            return mainButtonAdType;
         }
 
-        public void setMainButtonType(String mainButtonType) {
-            this.mainButtonType = mainButtonType;
+        public void setMainButtonAdType(String mainButtonAdType) {
+            this.mainButtonAdType = mainButtonAdType;
         }
 
         public String getMainInterstitialId() {
@@ -138,7 +138,7 @@ public class AdsConfig {
         private String secondBannerId = "ca-app-pub-3940256099942544/9214589741";
         private String secondNativeId = "ca-app-pub-3940256099942544/2247696110";
         private boolean secondButtonAdShow = true;
-        private String secondButtonType = "inter";
+        private String secondButtonAdType = "inter";
         private String secondInterstitialId = "ca-app-pub-3940256099942544/1033173712";
         private String secondAppOpenId = "ca-app-pub-3940256099942544/9257395921";
 
@@ -182,12 +182,12 @@ public class AdsConfig {
             this.secondButtonAdShow = secondButtonAdShow;
         }
 
-        public String getSecondButtonType() {
-            return secondButtonType;
+        public String getSecondButtonAdType() {
+            return secondButtonAdType;
         }
 
-        public void setSecondButtonType(String secondButtonType) {
-            this.secondButtonType = secondButtonType;
+        public void setSecondButtonAdType(String secondButtonAdType) {
+            this.secondButtonAdType = secondButtonAdType;
         }
 
         public String getSecondInterstitialId() {

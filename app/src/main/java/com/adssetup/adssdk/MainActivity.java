@@ -44,13 +44,13 @@ public class MainActivity extends AppCompatActivity {
 
         boolean buttonAdEnabled = adsEnabled && main.isMainButtonAdShow();
         findViewById(R.id.tvAds1).setOnClickListener(view -> {
-            if (buttonAdEnabled && AdsConfigManager.isType(main.getMainButtonType(), AdsConfigManager.TYPE_INTERSTITIAL)) {
+            if (buttonAdEnabled && AdsConfigManager.isType(main.getMainButtonAdType(), AdsConfigManager.TYPE_INTERSTITIAL)) {
                 view.setEnabled(false);
                 InterstitialAdPlacement.loadInterstitialAd(this, main.getMainInterstitialId(), "load", shown -> {
                     view.setEnabled(true);
                     openSecond();
                 });
-            } else if (buttonAdEnabled && AdsConfigManager.isType(main.getMainButtonType(), AdsConfigManager.TYPE_APP_OPEN)) {
+            } else if (buttonAdEnabled && AdsConfigManager.isType(main.getMainButtonAdType(), AdsConfigManager.TYPE_APP_OPEN)) {
                 view.setEnabled(false);
                 AppOpenAdPlacement.loadAppOpenAd(this, main.getMainAppOpenId(), "load", shown -> {
                     view.setEnabled(true);

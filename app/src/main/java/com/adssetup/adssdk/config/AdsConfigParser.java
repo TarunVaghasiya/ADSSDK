@@ -48,7 +48,7 @@ final class AdsConfigParser {
             mainScreen.setMainBannerId(string(main, "Main_Banner_Id", mainScreen.getMainBannerId()));
             mainScreen.setMainNativeId(string(main, "Main_Native_Id", mainScreen.getMainNativeId()));
             mainScreen.setMainButtonAdShow(main.optBoolean("Main_Button_Ad_Show", mainScreen.isMainButtonAdShow()));
-            mainScreen.setMainButtonType(string(main, "Main_Button_Type", mainScreen.getMainButtonType()));
+            mainScreen.setMainButtonAdType(string(main, "Main_Button_Ad_Type", mainScreen.getMainButtonAdType()));
             mainScreen.setMainInterstitialId(string(main, "Main_Interstitial_Id", mainScreen.getMainInterstitialId()));
             mainScreen.setMainAppOpenId(string(main, "Main_App_Open_Id", mainScreen.getMainAppOpenId()));
             mainScreen.setMainPipAdShow(main.optBoolean("Main_PIP_Ad_Show", mainScreen.isMainPipAdShow()));
@@ -63,7 +63,7 @@ final class AdsConfigParser {
             secondScreen.setSecondBannerId(string(second, "Second_Banner_Id", secondScreen.getSecondBannerId()));
             secondScreen.setSecondNativeId(string(second, "Second_Native_Id", secondScreen.getSecondNativeId()));
             secondScreen.setSecondButtonAdShow(second.optBoolean("Second_Button_Ad_Show", secondScreen.isSecondButtonAdShow()));
-            secondScreen.setSecondButtonType(string(second, "Second_Button_Type", secondScreen.getSecondButtonType()));
+            secondScreen.setSecondButtonAdType(string(second, "Second_Button_Ad_Type", secondScreen.getSecondButtonAdType()));
             secondScreen.setSecondInterstitialId(string(second, "Second_Interstitial_Id", secondScreen.getSecondInterstitialId()));
             secondScreen.setSecondAppOpenId(string(second, "Second_App_Open_Id", secondScreen.getSecondAppOpenId()));
         }

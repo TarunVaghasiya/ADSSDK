@@ -9,7 +9,7 @@ public final class AdsConfigManager {
     public static final String TYPE_BANNER = "banner";
     public static final String TYPE_NATIVE = "native";
     public static final String TYPE_INTERSTITIAL = "inter";
-    public static final String TYPE_APP_OPEN = "app_open";
+    public static final String TYPE_APP_OPEN = "appopen";
 
     private AdsConfigManager() {
     }

@@ -39,6 +39,7 @@ dependencies {
     implementation libs.cardview
     implementation libs.sdp.android
     implementation libs.facebook.shimmer
+    implementation libs.glide
     api libs.ads.mobile.sdk
 }
 

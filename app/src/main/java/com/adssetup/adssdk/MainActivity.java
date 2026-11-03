@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.tvOnloadNative).setOnClickListener(view -> NativeFullAdPlacement.show(this, main.getMainNativeId()));
+        findViewById(R.id.tvFullNative).setOnClickListener(view -> NativeFullAdPlacement.show(this, main.getMainNativeId()));
 
         if (main.isMainPipAdShow()) {
             PIPAdPlacement.loadPIPAd(this, main.getMainPipId());

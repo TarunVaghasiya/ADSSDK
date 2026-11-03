@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (buttonAdEnabled && AdsConfigManager.isType(main.getMainButtonAdType(), AdsConfigManager.TYPE_APP_OPEN) && AppOpenAdPlacement.MODE_PRELOAD.equals(AdsConfigManager.loadMode(config.getAppOpenLoadType()))) {
             AppOpenAdPlacement.loadAppOpenAd(this, main.getMainAppOpenId(), AppOpenAdPlacement.MODE_PRELOAD, null);
         }
-        findViewById(R.id.tvAds1).setOnClickListener(view -> {
+        findViewById(R.id.tvPreloadAds).setOnClickListener(view -> {
             if (buttonAdEnabled && AdsConfigManager.isType(main.getMainButtonAdType(), AdsConfigManager.TYPE_INTERSTITIAL)) {
                 view.setEnabled(false);
                 InterstitialAdPlacement.loadInterstitialAd(this, main.getMainInterstitialId(), AdsConfigManager.loadMode(config.getInterstitialLoadType()), shown -> {
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.tvNative).setOnClickListener(view -> NativeFullAdPlacement.show(this, main.getMainNativeId()));
+        findViewById(R.id.tvOnloadNative).setOnClickListener(view -> NativeFullAdPlacement.show(this, main.getMainNativeId()));
 
         if (main.isMainPipAdShow()) {
             PIPAdPlacement.loadPIPAd(this, main.getMainPipId());

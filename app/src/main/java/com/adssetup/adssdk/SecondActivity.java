@@ -45,7 +45,7 @@ public class SecondActivity extends AppCompatActivity {
         } else if (buttonAdEnabled && AdsConfigManager.isType(second.getSecondButtonAdType(), AdsConfigManager.TYPE_APP_OPEN) && AppOpenAdPlacement.MODE_PRELOAD.equals(AdsConfigManager.loadMode(config.getAppOpenLoadType()))) {
             AppOpenAdPlacement.loadAppOpenAd(this, second.getSecondAppOpenId(), AppOpenAdPlacement.MODE_PRELOAD, null);
         }
-        findViewById(R.id.tvAds2).setOnClickListener(view -> {
+        findViewById(R.id.tvOnloadAds).setOnClickListener(view -> {
             if (buttonAdEnabled && AdsConfigManager.isType(second.getSecondButtonAdType(), AdsConfigManager.TYPE_INTERSTITIAL)) {
                 view.setEnabled(false);
                 InterstitialAdPlacement.loadInterstitialAd(this, second.getSecondInterstitialId(), AdsConfigManager.loadMode(config.getInterstitialLoadType()), shown -> {

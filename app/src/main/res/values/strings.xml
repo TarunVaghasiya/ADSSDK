@@ -1,7 +1,9 @@
 <resources>
     <string name="app_name">ADSSDK</string>
 
-    <string name="btn_ads_1">ADS 1</string>
-    <string name="btn_native">FULL NATIVE</string>
-    <string name="btn_ads_2">ADS 2</string>
+    <string name="btn_preload_ads">PRELOAD ADS</string>
+    <string name="btn_onload_native">ON LOAD FULL NATIVE</string>
+
+    <string name="btn_onload_2">ONLOAD ADS</string>
+    <string name="btn_preload_native">PRELOAD FULL NATIVE</string>
 </resources>

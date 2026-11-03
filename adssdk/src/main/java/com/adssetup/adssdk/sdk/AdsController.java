@@ -19,7 +19,9 @@ public final class AdsController {
     private static volatile boolean quizFallbackEnabled = true;
     private static final Random RANDOM = new Random();
     private static volatile List<String> quizIcons = Collections.emptyList();
-    private static volatile List<String> quizMedia = Collections.emptyList();
+    private static volatile List<String> quizNativeMedia = Collections.emptyList();
+    private static volatile List<String> quizInterstitialMedia = Collections.emptyList();
+    private static volatile List<String> quizAppOpenMedia = Collections.emptyList();
     private static volatile List<String> quizTitles = Collections.emptyList();
     private static volatile List<String> quizDescriptions = Collections.emptyList();
     private static volatile String quizButtonText = "";
@@ -51,17 +53,31 @@ public final class AdsController {
         return quizFallbackEnabled;
     }
 
-    public static void setQuizDesign(@Nullable List<String> icons, @Nullable List<String> media, @Nullable List<String> titles, @Nullable List<String> descriptions, @Nullable String buttonText) {
+    public static void setQuizDesign(@Nullable List<String> icons, @Nullable List<String> nativeMedia, @Nullable List<String> interstitialMedia, @Nullable List<String> appOpenMedia, @Nullable List<String> titles, @Nullable List<String> descriptions, @Nullable String buttonText) {
         quizIcons = icons == null ? Collections.emptyList() : icons;
-        quizMedia = media == null ? Collections.emptyList() : media;
+        quizNativeMedia = nativeMedia == null ? Collections.emptyList() : nativeMedia;
+        quizInterstitialMedia = interstitialMedia == null ? Collections.emptyList() : interstitialMedia;
+        quizAppOpenMedia = appOpenMedia == null ? Collections.emptyList() : appOpenMedia;
         quizTitles = titles == null ? Collections.emptyList() : titles;
         quizDescriptions = descriptions == null ? Collections.emptyList() : descriptions;
         quizButtonText = buttonText == null ? "" : buttonText;
     }
 
     static void bindQuizDesign(@NonNull View root) {
+        bindQuizDesign(root, quizNativeMedia);
+    }
+
+    static void bindInterstitialQuizDesign(@NonNull View root) {
+        bindQuizDesign(root, quizInterstitialMedia);
+    }
+
+    static void bindAppOpenQuizDesign(@NonNull View root) {
+        bindQuizDesign(root, quizAppOpenMedia);
+    }
+
+    private static void bindQuizDesign(@NonNull View root, @NonNull List<String> media) {
         bindImage(root.findViewById(R.id.ivQZAppIcon), pick(quizIcons, RANDOM.nextInt(Integer.MAX_VALUE)));
-        bindImage(root.findViewById(R.id.ivQZAppMedia), pick(quizMedia, RANDOM.nextInt(Integer.MAX_VALUE)));
+        bindImage(root.findViewById(R.id.ivQZAppMedia), pick(media, RANDOM.nextInt(Integer.MAX_VALUE)));
         int textIndex = RANDOM.nextInt(Integer.MAX_VALUE);
         bindText(root.findViewById(R.id.tvQZAppTitle), pick(quizTitles, textIndex));
         bindText(root.findViewById(R.id.tvQZAppDescription), pick(quizDescriptions, textIndex));

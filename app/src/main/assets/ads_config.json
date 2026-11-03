@@ -25,5 +25,44 @@
     "Second_Button_Ad_Type": "inter",
     "Second_Interstitial_Id": "ca-app-pub-3940256099942544/1033173712",
     "Second_App_Open_Id": "ca-app-pub-3940256099942544/9257395921"
+  },
+  "QuizAdsDesign": {
+    "Quiz_App_Icon": [
+      "https://videocall.blr1.digitaloceanspaces.com/cleaner/com.phonecleaner.virusclean/img_app_icon_1.jpg",
+      "https://videocall.blr1.digitaloceanspaces.com/cleaner/com.phonecleaner.virusclean/img_app_icon_2.jpg",
+      "https://videocall.blr1.digitaloceanspaces.com/cleaner/com.phonecleaner.virusclean/img_app_icon_3.jpg"
+    ],
+    "Quiz_Native_Media": [
+      "https://videocall.blr1.digitaloceanspaces.com/cleaner/com.phonecleaner.virusclean/img_native_1.jpg",
+      "https://videocall.blr1.digitaloceanspaces.com/cleaner/com.phonecleaner.virusclean/img_native_2.jpg",
+      "https://videocall.blr1.digitaloceanspaces.com/cleaner/com.phonecleaner.virusclean/img_native_3.jpg"
+    ],
+    "Quiz_Interstitial_Media": [
+      "https://videocall.blr1.digitaloceanspaces.com/cleaner/com.phonecleaner.virusclean/img_inter_1.jpg",
+      "https://videocall.blr1.digitaloceanspaces.com/cleaner/com.phonecleaner.virusclean/img_inter_2.jpg",
+      "https://videocall.blr1.digitaloceanspaces.com/cleaner/com.phonecleaner.virusclean/img_inter_3.jpg"
+    ],
+    "Quiz_App_Open_Media": [
+      "https://videocall.blr1.digitaloceanspaces.com/cleaner/com.phonecleaner.virusclean/img_app_open_1.jpg",
+      "https://videocall.blr1.digitaloceanspaces.com/cleaner/com.phonecleaner.virusclean/img_app_open_2.jpg",
+      "https://videocall.blr1.digitaloceanspaces.com/cleaner/com.phonecleaner.virusclean/img_app_open_3.jpg"
+    ],
+    "Quiz_Title": [
+      "Phone Cleaner Pro",
+      "Smart Storage Cleaner",
+      "Fast Phone Cleanup",
+      "Smart Phone Cleaner",
+      "Storage Cleaner Pro",
+      "Phone Cleanup Tool"
+    ],
+    "Quiz_Description": [
+      "Clean junk files and free up valuable storage space to keep your phone organized",
+      "Quickly remove unnecessary files and manage device storage with ease",
+      "Optimize your phone storage by finding and cleaning unwanted files in seconds",
+      "Easily manage storage and remove unwanted files from your device",
+      "Keep your phone organized with tools designed for efficient storage cleanup",
+      "Find large, duplicate, and unnecessary files to optimize available space"
+    ],
+    "Quiz_Button_Text": "Clean Now"
   }
 }

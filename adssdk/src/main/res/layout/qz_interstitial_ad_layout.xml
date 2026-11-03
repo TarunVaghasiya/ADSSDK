@@ -99,7 +99,7 @@
                     android:layout_marginTop="@dimen/_5sdp"
                     android:fontFamily="@font/fig_tree_medium"
                     android:gravity="center"
-                    android:maxLines="2"
+                    android:maxLines="3"
                     android:text="@string/ad_body_placeholder"
                     android:textColor="@color/text_secondary"
                     android:textSize="@dimen/_10sdp" />

@@ -44,7 +44,7 @@
         android:layout_height="0dp"
         android:layout_marginHorizontal="@dimen/_10sdp"
         android:layout_marginTop="@dimen/_10sdp"
-        android:layout_weight="1"
+        android:layout_weight="0.9"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -81,7 +81,7 @@
             android:layout_marginTop="@dimen/_5sdp"
             android:fontFamily="@font/fig_tree_medium"
             android:gravity="center"
-            android:maxLines="2"
+            android:maxLines="3"
             android:text="@string/ad_body_placeholder"
             android:textColor="@color/text_secondary"
             android:textSize="@dimen/_10sdp" />
@@ -94,7 +94,7 @@
         android:layout_height="0dp"
         android:layout_marginHorizontal="@dimen/_10sdp"
         android:layout_marginVertical="@dimen/_20sdp"
-        android:layout_weight="1" />
+        android:layout_weight="1.1" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/btnQZClick"

@@ -1,6 +1,6 @@
 {
   "App_All_Ads_Show": true,
-  "Ad_Priority": "google",
+  "Ad_Priority": "quiz",
   "Google_Ad_Failed_Show_Quiz": true,
   "Interstitial_Load_Type": "load",
   "App_Open_Load_Type": "preload",

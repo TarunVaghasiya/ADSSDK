@@ -1,5 +1,8 @@
 package com.adssetup.adssdk.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AdsConfig {
     private boolean appAllAdsShow = true;
     private String adPriority = "google";
@@ -8,6 +11,7 @@ public class AdsConfig {
     private String appOpenLoadType = "preload";
     private final MainScreen mainScreen = new MainScreen();
     private final SecondScreen secondScreen = new SecondScreen();
+    private final QuizAdsDesign quizAdsDesign = new QuizAdsDesign();
 
     public boolean isAppAllAdsShow() {
         return appAllAdsShow;
@@ -55,6 +59,10 @@ public class AdsConfig {
 
     public SecondScreen getSecondScreen() {
         return secondScreen;
+    }
+
+    public QuizAdsDesign getQuizAdsDesign() {
+        return quizAdsDesign;
     }
 
     public static class MainScreen {
@@ -222,6 +230,72 @@ public class AdsConfig {
 
         public void setSecondAppOpenId(String secondAppOpenId) {
             this.secondAppOpenId = secondAppOpenId;
+        }
+    }
+
+    public static class QuizAdsDesign {
+        private List<String> quizAppIcon = new ArrayList<>();
+        private List<String> quizNativeMedia = new ArrayList<>();
+        private List<String> quizInterstitialMedia = new ArrayList<>();
+        private List<String> quizAppOpenMedia = new ArrayList<>();
+        private List<String> quizTitle = new ArrayList<>();
+        private List<String> quizDescription = new ArrayList<>();
+        private String quizButtonText = "";
+
+        public List<String> getQuizAppIcon() {
+            return quizAppIcon;
+        }
+
+        public void setQuizAppIcon(List<String> quizAppIcon) {
+            this.quizAppIcon = quizAppIcon;
+        }
+
+        public List<String> getQuizNativeMedia() {
+            return quizNativeMedia;
+        }
+
+        public void setQuizNativeMedia(List<String> quizNativeMedia) {
+            this.quizNativeMedia = quizNativeMedia;
+        }
+
+        public List<String> getQuizInterstitialMedia() {
+            return quizInterstitialMedia;
+        }
+
+        public void setQuizInterstitialMedia(List<String> quizInterstitialMedia) {
+            this.quizInterstitialMedia = quizInterstitialMedia;
+        }
+
+        public List<String> getQuizAppOpenMedia() {
+            return quizAppOpenMedia;
+        }
+
+        public void setQuizAppOpenMedia(List<String> quizAppOpenMedia) {
+            this.quizAppOpenMedia = quizAppOpenMedia;
+        }
+
+        public List<String> getQuizTitle() {
+            return quizTitle;
+        }
+
+        public void setQuizTitle(List<String> quizTitle) {
+            this.quizTitle = quizTitle;
+        }
+
+        public List<String> getQuizDescription() {
+            return quizDescription;
+        }
+
+        public void setQuizDescription(List<String> quizDescription) {
+            this.quizDescription = quizDescription;
+        }
+
+        public String getQuizButtonText() {
+            return quizButtonText;
+        }
+
+        public void setQuizButtonText(String quizButtonText) {
+            this.quizButtonText = quizButtonText;
         }
     }
 }

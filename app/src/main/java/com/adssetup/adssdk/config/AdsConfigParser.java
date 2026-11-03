@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,6 +12,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 final class AdsConfigParser {
     private static final String ASSET_NAME = "ads_config.json";
@@ -69,7 +72,35 @@ final class AdsConfigParser {
             secondScreen.setSecondInterstitialId(string(second, "Second_Interstitial_Id", secondScreen.getSecondInterstitialId()));
             secondScreen.setSecondAppOpenId(string(second, "Second_App_Open_Id", secondScreen.getSecondAppOpenId()));
         }
+
+        JSONObject quiz = root.optJSONObject("QuizAdsDesign");
+        if (quiz != null) {
+            AdsConfig.QuizAdsDesign design = config.getQuizAdsDesign();
+            design.setQuizAppIcon(stringList(quiz, "Quiz_App_Icon"));
+            design.setQuizNativeMedia(stringList(quiz, "Quiz_Native_Media"));
+            design.setQuizInterstitialMedia(stringList(quiz, "Quiz_Interstitial_Media"));
+            design.setQuizAppOpenMedia(stringList(quiz, "Quiz_App_Open_Media"));
+            design.setQuizTitle(stringList(quiz, "Quiz_Title"));
+            design.setQuizDescription(stringList(quiz, "Quiz_Description"));
+            design.setQuizButtonText(string(quiz, "Quiz_Button_Text", design.getQuizButtonText()));
+        }
         return config;
+    }
+
+    @NonNull
+    private static List<String> stringList(@NonNull JSONObject json, @NonNull String key) {
+        List<String> values = new ArrayList<>();
+        JSONArray array = json.optJSONArray(key);
+        if (array == null) {
+            return values;
+        }
+        for (int i = 0; i < array.length(); i++) {
+            String value = array.optString(i, "").trim();
+            if (!value.isEmpty()) {
+                values.add(value);
+            }
+        }
+        return values;
     }
 
     @NonNull

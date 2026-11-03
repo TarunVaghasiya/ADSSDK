@@ -267,7 +267,7 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
             return;
         }
         dismissDialog();
-        fallback = new QuizFallbackDialog(activity, R.layout.qz_app_open_ad_layout, R.id.llQZClose, Color.TRANSPARENT, () -> {
+        fallback = new QuizFallbackDialog(activity, R.layout.qz_app_open_ad_layout, R.id.llQZClose, Color.TRANSPARENT, AdsController::bindAppOpenQuizDesign, () -> {
             fallback = null;
             finish(false);
         });

@@ -267,7 +267,7 @@ public class InterstitialAdPlacement implements DefaultLifecycleObserver {
             return;
         }
         dismissDialog();
-        fallback = new QuizFallbackDialog(activity, R.layout.qz_interstitial_ad_layout, R.id.ivQZClose, 0xFFFFFFFF, () -> {
+        fallback = new QuizFallbackDialog(activity, R.layout.qz_interstitial_ad_layout, R.id.ivQZClose, 0xFFFFFFFF, AdsController::bindInterstitialQuizDesign, () -> {
             fallback = null;
             finish(false);
         });

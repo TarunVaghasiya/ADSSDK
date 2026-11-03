@@ -1,5 +1,8 @@
 package com.adssetup.adssdk.sdk;
 
+import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -7,8 +10,15 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.facebook.shimmer.Shimmer;
+import com.facebook.shimmer.ShimmerDrawable;
 
 import java.util.Collections;
 import java.util.List;
@@ -103,9 +113,33 @@ public final class AdsController {
     }
 
     private static void bindImage(@Nullable View view, @Nullable String url) {
-        if (view instanceof ImageView && url != null && !url.isEmpty()) {
-            Glide.with(view).load(url).into((ImageView) view);
+        if (!(view instanceof ImageView)) {
+            return;
         }
+        ImageView imageView = (ImageView) view;
+        Context context = view.getContext();
+        Glide.with(imageView).clear(imageView);
+        ColorDrawable fallback = new ColorDrawable(ContextCompat.getColor(context, R.color.shimmer_block));
+        if (url == null || url.isEmpty()) {
+            imageView.setImageDrawable(fallback);
+            return;
+        }
+        ShimmerDrawable shimmer = new ShimmerDrawable();
+        shimmer.setShimmer(new Shimmer.ColorHighlightBuilder().setBaseColor(ContextCompat.getColor(context, R.color.shimmer_block)).setHighlightColor(ContextCompat.getColor(context, R.color.card_background)).setDuration(1200).build());
+        shimmer.startShimmer();
+        Glide.with(imageView).load(url).placeholder(shimmer).error(fallback).listener(new RequestListener<>() {
+            @Override
+            public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
+                shimmer.stopShimmer();
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+                shimmer.stopShimmer();
+                return false;
+            }
+        }).into(imageView);
     }
 
     private static void bindText(@Nullable View view, @Nullable String text) {

@@ -19,10 +19,25 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/_42sdp"
             android:layout_marginHorizontal="@dimen/_20sdp"
+            android:layout_marginBottom="@dimen/_10sdp"
             android:background="@drawable/custom_button"
             android:fontFamily="@font/fig_tree_bold"
             android:gravity="center"
             android:text="@string/btn_ads_1"
+            android:textAllCaps="true"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/_12sdp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvNative"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_42sdp"
+            android:layout_marginHorizontal="@dimen/_20sdp"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:background="@drawable/custom_button"
+            android:fontFamily="@font/fig_tree_bold"
+            android:gravity="center"
+            android:text="@string/btn_native"
             android:textAllCaps="true"
             android:textColor="@android:color/white"
             android:textSize="@dimen/_12sdp" />

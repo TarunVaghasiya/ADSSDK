@@ -125,6 +125,7 @@ public class NativeAdCustomView extends FrameLayout implements DefaultLifecycleO
         }
         if (fallback == null && !destroyed) {
             fallback = LayoutInflater.from(getContext()).inflate(size.fallbackRes, this, false);
+            AdsController.bindQuizDesign(fallback);
             addView(fallback);
         }
     }
@@ -137,6 +138,7 @@ public class NativeAdCustomView extends FrameLayout implements DefaultLifecycleO
         }
         if (fallback == null && !destroyed) {
             fallback = LayoutInflater.from(getContext()).inflate(size.fallbackRes, this, false);
+            AdsController.bindQuizDesign(fallback);
             addView(fallback);
         }
     }

@@ -84,7 +84,7 @@
                     android:id="@+id/tvQZAppTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_20sdp"
+                    android:layout_marginTop="@dimen/_30sdp"
                     android:fontFamily="@font/fig_tree_bold"
                     android:gravity="center"
                     android:singleLine="true"
@@ -107,7 +107,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_20sdp"
+                    android:layout_marginTop="@dimen/_30sdp"
                     android:baselineAligned="false"
                     android:gravity="center_vertical">
 
@@ -126,14 +126,14 @@
                             android:gravity="center"
                             android:text="@string/ad_body_placeholder"
                             android:textColor="@color/text_primary"
-                            android:textSize="@dimen/_11sdp" />
+                            android:textSize="@dimen/_12sdp" />
 
                         <androidx.appcompat.widget.AppCompatRatingBar
                             android:id="@+id/rbQZRating"
                             android:layout_width="@dimen/quiz_rating_bar_width"
                             android:layout_height="@dimen/quiz_rating_star_size"
                             android:layout_gravity="center_horizontal"
-                            android:layout_marginTop="@dimen/_4sdp"
+                            android:layout_marginTop="@dimen/_3sdp"
                             android:isIndicator="true"
                             android:max="5"
                             android:numStars="5"
@@ -143,6 +143,13 @@
                             tools:rating="4.7" />
 
                     </LinearLayout>
+
+                    <!--                    <View-->
+                    <!--                        android:layout_width="@dimen/_1sdp"-->
+                    <!--                        android:layout_height="@dimen/_40sdp"-->
+                    <!--                        android:layout_marginHorizontal="@dimen/_20sdp"-->
+                    <!--                        android:alpha="0.2"-->
+                    <!--                        android:background="@color/text_secondary" />-->
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -160,12 +167,12 @@
                             android:id="@+id/tvQZUser"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/quiz_rating_star_size"
-                            android:layout_marginTop="@dimen/_4sdp"
+                            android:layout_marginTop="@dimen/_5sdp"
                             android:fontFamily="@font/fig_tree_medium"
                             android:gravity="center"
                             android:text="@string/ad_body_placeholder"
                             android:textColor="@color/text_primary"
-                            android:textSize="@dimen/_11sdp" />
+                            android:textSize="@dimen/_12sdp" />
 
                     </LinearLayout>
 

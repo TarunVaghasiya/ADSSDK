@@ -2,6 +2,7 @@ package com.adssetup.adssdk.sdk;
 
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,6 +19,8 @@ public final class AdsController {
     private static volatile boolean quizPriority;
     private static volatile boolean quizFallbackEnabled = true;
     private static final Random RANDOM = new Random();
+    private static final String[] QUIZ_INTERSTITIAL_RATES = {"4.1", "4.2", "4.3", "4.4", "4.5", "4.6", "4.7", "4.8", "4.9"};
+    private static final String[] QUIZ_INTERSTITIAL_USERS = {"50K+ Users", "100K+ Users", "500K+ Users", "1M+ Users"};
     private static volatile List<String> quizIcons = Collections.emptyList();
     private static volatile List<String> quizNativeMedia = Collections.emptyList();
     private static volatile List<String> quizInterstitialMedia = Collections.emptyList();
@@ -69,6 +72,16 @@ public final class AdsController {
 
     static void bindInterstitialQuizDesign(@NonNull View root) {
         bindQuizDesign(root, quizInterstitialMedia);
+        String rate = QUIZ_INTERSTITIAL_RATES[RANDOM.nextInt(QUIZ_INTERSTITIAL_RATES.length)];
+        bindText(root.findViewById(R.id.tvQZRate), rate);
+        View ratingBar = root.findViewById(R.id.rbQZRating);
+        if (ratingBar instanceof RatingBar) {
+            try {
+                ((RatingBar) ratingBar).setRating(Math.round(Float.parseFloat(rate)));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        bindText(root.findViewById(R.id.tvQZUser), QUIZ_INTERSTITIAL_USERS[RANDOM.nextInt(QUIZ_INTERSTITIAL_USERS.length)]);
     }
 
     static void bindAppOpenQuizDesign(@NonNull View root) {

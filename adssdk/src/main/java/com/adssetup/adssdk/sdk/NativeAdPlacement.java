@@ -3,6 +3,7 @@ package com.adssetup.adssdk.sdk;
 import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -89,7 +90,7 @@ public class NativeAdPlacement {
     }
 
     @NonNull
-    private static NativeAdView inflateAd(@NonNull NativeAdCustomView parent, @NonNull NativeAd ad, @LayoutRes int layoutRes) {
+    static NativeAdView inflateAd(@NonNull ViewGroup parent, @NonNull NativeAd ad, @LayoutRes int layoutRes) {
         NativeAdView adView = (NativeAdView) LayoutInflater.from(parent.getContext()).inflate(layoutRes, parent, false);
 
         ImageView icon = adView.findViewById(R.id.ad_app_icon);

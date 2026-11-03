@@ -14,6 +14,7 @@ import com.adssetup.adssdk.sdk.BannerAdPlacement;
 import com.adssetup.adssdk.sdk.InterstitialAdPlacement;
 import com.adssetup.adssdk.sdk.NativeAdCustomView;
 import com.adssetup.adssdk.sdk.NativeAdPlacement;
+import com.adssetup.adssdk.sdk.NativeFullAdPlacement;
 import com.adssetup.adssdk.sdk.PIPAdPlacement;
 
 public class MainActivity extends AppCompatActivity {
@@ -64,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
                 openSecond();
             }
         });
+
+        findViewById(R.id.tvNative).setOnClickListener(view -> NativeFullAdPlacement.show(this, main.getMainNativeId()));
 
         if (main.isMainPipAdShow()) {
             PIPAdPlacement.loadPIPAd(this, main.getMainPipId());

@@ -50,10 +50,6 @@ public class RewardedAdPlacement implements DefaultLifecycleObserver {
         this.callback = callback;
     }
 
-    public static boolean isLoading() {
-        return inFlight;
-    }
-
     public static void loadRewardedAd(@NonNull Activity activity, @NonNull String adUnitId, @Nullable Callback callback) {
         if (inFlight) {
             return;
@@ -75,24 +71,17 @@ public class RewardedAdPlacement implements DefaultLifecycleObserver {
     }
 
     private void onAuthorized(boolean granted) {
-        Activity activity = activityReference.get();
         if (finished) {
             return;
         }
-        if (!granted || !AdsController.isAdsEnabled() || !isUsable(activity)) {
+        if (!granted || !AdsController.isAdsEnabled() || !isUsable(activityReference.get())) {
             finish(false);
             return;
         }
         RewardedAd.load(new AdRequest.Builder(adUnitId).build(), new AdLoadCallback<>() {
             @Override
             public void onAdLoaded(@NonNull RewardedAd ad) {
-                MainThread.run(() -> {
-                    Activity host = activityReference.get();
-                    if (finished || !isUsable(host)) {
-                        return;
-                    }
-                    show(host, ad);
-                });
+                MainThread.run(() -> onLoaded(ad));
             }
 
             @Override
@@ -100,6 +89,18 @@ public class RewardedAdPlacement implements DefaultLifecycleObserver {
                 MainThread.run(() -> finish(false));
             }
         });
+    }
+
+    private void onLoaded(@NonNull RewardedAd ad) {
+        Activity host = activityReference.get();
+        if (finished || !isUsable(host)) {
+            return;
+        }
+        if (!AdsController.isAdsEnabled()) {
+            finish(false);
+            return;
+        }
+        show(host, ad);
     }
 
     private void show(@NonNull Activity host, @NonNull RewardedAd ad) {

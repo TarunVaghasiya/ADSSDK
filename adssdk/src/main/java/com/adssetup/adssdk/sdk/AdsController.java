@@ -87,6 +87,7 @@ public final class AdsController {
 
     static void bindInterstitialQuizDesign(@NonNull View root) {
         bindQuizDesign(root, quizInterstitialMedia);
+        applyNativeQuizColors(root);
         String rate = QUIZ_INTERSTITIAL_RATES[RANDOM.nextInt(QUIZ_INTERSTITIAL_RATES.length)];
         bindText(root.findViewById(R.id.tvQZRate), rate);
         View ratingBar = root.findViewById(R.id.rbQZRating);
@@ -101,6 +102,7 @@ public final class AdsController {
 
     static void bindAppOpenQuizDesign(@NonNull View root) {
         bindQuizDesign(root, quizAppOpenMedia);
+        applyNativeQuizColors(root);
     }
 
     private static void bindQuizDesign(@NonNull View root, @NonNull List<String> media) {

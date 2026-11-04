@@ -197,6 +197,7 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
         if (fallback == null && !destroyed) {
             fallback = LayoutInflater.from(getContext()).inflate(size.fallbackRes, this, false);
             AdsController.bindQuizDesign(fallback);
+            AdsController.applyNativeQuizColors(fallback);
             addView(fallback);
         }
     }

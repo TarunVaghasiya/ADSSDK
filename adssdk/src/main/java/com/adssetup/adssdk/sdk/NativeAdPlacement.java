@@ -124,6 +124,8 @@ public class NativeAdPlacement {
         bindText(action, ad.getCallToAction());
         adView.setCallToActionView(action);
 
+        AdsController.applyNativeColors(adView, R.id.ad_attribution, R.id.ad_call_to_action);
+
         adView.registerNativeAd(ad, media);
         return adView;
     }

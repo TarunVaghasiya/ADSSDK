@@ -188,6 +188,7 @@ public class NativeFullAdPlacement implements DefaultLifecycleObserver {
         try {
             View quiz = LayoutInflater.from(activity).inflate(R.layout.qz_full_ad_layout, root, false);
             AdsController.bindQuizDesign(quiz);
+            AdsController.applyNativeQuizColors(quiz);
             View close = quiz.findViewById(R.id.ivQZClose);
             if (close != null) {
                 close.setVisibility(View.VISIBLE);

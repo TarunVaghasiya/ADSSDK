@@ -1,6 +1,8 @@
 package com.adssetup.adssdk.sdk;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
@@ -11,6 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -38,6 +41,8 @@ public final class AdsController {
     private static volatile List<String> quizTitles = Collections.emptyList();
     private static volatile List<String> quizDescriptions = Collections.emptyList();
     private static volatile String quizButtonText = "";
+    private static volatile Integer nativeLabelColor;
+    private static volatile Integer nativeButtonColor;
 
     private AdsController() {
     }
@@ -145,6 +150,48 @@ public final class AdsController {
     private static void bindText(@Nullable View view, @Nullable String text) {
         if (view instanceof TextView && text != null && !text.isEmpty()) {
             ((TextView) view).setText(text);
+        }
+    }
+
+    public static void setNativeColors(@Nullable String labelColor, @Nullable String buttonColor) {
+        nativeLabelColor = parseColor(labelColor);
+        nativeButtonColor = parseColor(buttonColor);
+    }
+
+    @Nullable
+    private static Integer parseColor(@Nullable String value) {
+        if (value == null) {
+            return null;
+        }
+        String hex = value.trim();
+        if (hex.isEmpty()) {
+            return null;
+        }
+        try {
+            return Color.parseColor(hex.startsWith("#") ? hex : "#" + hex);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    static void applyNativeQuizColors(@NonNull View root) {
+        applyNativeColors(root, R.id.tvQZLabel, R.id.btnQZClick);
+    }
+
+    static void applyNativeColors(@NonNull View root, int labelId, int buttonId) {
+        Integer label = nativeLabelColor;
+        Integer button = nativeButtonColor;
+        if (label != null) {
+            View labelView = root.findViewById(labelId);
+            if (labelView != null) {
+                ViewCompat.setBackgroundTintList(labelView, ColorStateList.valueOf(label));
+            }
+        }
+        if (button != null) {
+            View buttonView = root.findViewById(buttonId);
+            if (buttonView != null) {
+                ViewCompat.setBackgroundTintList(buttonView, ColorStateList.valueOf(button));
+            }
         }
     }
 }

@@ -44,6 +44,8 @@ final class AdsConfigParser {
         config.setGoogleAdFailedShowQuiz(root.optBoolean("Google_Ad_Failed_Show_Quiz", config.isGoogleAdFailedShowQuiz()));
         config.setInterstitialLoadType(string(root, "Interstitial_Load_Type", config.getInterstitialLoadType()));
         config.setAppOpenLoadType(string(root, "App_Open_Load_Type", config.getAppOpenLoadType()));
+        config.setNativeAdLabelColor(string(root, "Native_Ad_Label_Color", config.getNativeAdLabelColor()));
+        config.setNativeAdButtonColor(string(root, "Native_Ad_Button_Color", config.getNativeAdButtonColor()));
 
         JSONObject main = root.optJSONObject("MainScreen");
         if (main != null) {

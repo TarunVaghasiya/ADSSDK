@@ -22,6 +22,7 @@ public final class AdsConfigManager {
             AdsController.setAdsEnabled(config.isAppAllAdsShow());
             AdsController.setQuizPriority("quiz".equalsIgnoreCase(config.getAdPriority()));
             AdsController.setQuizFallbackEnabled(config.isGoogleAdFailedShowQuiz());
+            AdsController.setNativeColors(config.getNativeAdLabelColor(), config.getNativeAdButtonColor());
             AdsConfig.QuizAdsDesign design = config.getQuizAdsDesign();
             AdsController.setQuizDesign(design.getQuizAppIcon(), design.getQuizNativeMedia(), design.getQuizInterstitialMedia(), design.getQuizAppOpenMedia(), design.getQuizTitle(), design.getQuizDescription(), design.getQuizButtonText());
         }

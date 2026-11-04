@@ -9,6 +9,8 @@ public class AdsConfig {
     private boolean googleAdFailedShowQuiz = true;
     private String interstitialLoadType = "load";
     private String appOpenLoadType = "preload";
+    private String nativeAdLabelColor = "";
+    private String nativeAdButtonColor = "";
     private final MainScreen mainScreen = new MainScreen();
     private final SecondScreen secondScreen = new SecondScreen();
     private final QuizAdsDesign quizAdsDesign = new QuizAdsDesign();
@@ -51,6 +53,22 @@ public class AdsConfig {
 
     public void setAppOpenLoadType(String appOpenLoadType) {
         this.appOpenLoadType = appOpenLoadType;
+    }
+
+    public String getNativeAdLabelColor() {
+        return nativeAdLabelColor;
+    }
+
+    public void setNativeAdLabelColor(String nativeAdLabelColor) {
+        this.nativeAdLabelColor = nativeAdLabelColor;
+    }
+
+    public String getNativeAdButtonColor() {
+        return nativeAdButtonColor;
+    }
+
+    public void setNativeAdButtonColor(String nativeAdButtonColor) {
+        this.nativeAdButtonColor = nativeAdButtonColor;
     }
 
     public MainScreen getMainScreen() {

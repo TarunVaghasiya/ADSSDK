@@ -4,6 +4,8 @@
   "Google_Ad_Failed_Show_Quiz": true,
   "Interstitial_Load_Type": "load",
   "App_Open_Load_Type": "preload",
+  "Native_Ad_Label_Color": "EBAE00",
+  "Native_Ad_Button_Color": "2775FF",
   "MainScreen": {
     "Main_Ad_Show": true,
     "Main_Ad_Type": "banner",

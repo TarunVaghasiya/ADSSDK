@@ -2,7 +2,9 @@ package com.adssetup.adssdk;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.adssetup.adssdk.config.AdsConfig;
@@ -13,6 +15,7 @@ import com.adssetup.adssdk.sdk.BannerAdPlacement;
 import com.adssetup.adssdk.sdk.InterstitialAdPlacement;
 import com.adssetup.adssdk.sdk.NativeAdCustomView;
 import com.adssetup.adssdk.sdk.NativeAdPlacement;
+import com.adssetup.adssdk.sdk.RewardedAdPlacement;
 
 public class SecondActivity extends AppCompatActivity {
     @Override
@@ -45,7 +48,7 @@ public class SecondActivity extends AppCompatActivity {
         } else if (buttonAdEnabled && AdsConfigManager.isType(second.getSecondButtonAdType(), AdsConfigManager.TYPE_APP_OPEN) && AppOpenAdPlacement.MODE_PRELOAD.equals(AdsConfigManager.loadMode(config.getAppOpenLoadType()))) {
             AppOpenAdPlacement.loadAppOpenAd(this, second.getSecondAppOpenId(), AppOpenAdPlacement.MODE_PRELOAD, null);
         }
-        findViewById(R.id.tvOnloadAds).setOnClickListener(view -> {
+        findViewById(R.id.tvOnloadAd).setOnClickListener(view -> {
             if (buttonAdEnabled && AdsConfigManager.isType(second.getSecondButtonAdType(), AdsConfigManager.TYPE_INTERSTITIAL)) {
                 view.setEnabled(false);
                 InterstitialAdPlacement.loadInterstitialAd(this, second.getSecondInterstitialId(), AdsConfigManager.loadMode(config.getInterstitialLoadType()), shown -> {
@@ -61,6 +64,20 @@ public class SecondActivity extends AppCompatActivity {
             } else {
                 openMain();
             }
+        });
+
+        findViewById(R.id.tvRewardAd).setOnClickListener(view -> {
+            RewardedAdPlacement.loadRewardedAd(this, second.getSecondRewardId(), new RewardedAdPlacement.Callback() {
+                @Override
+                public void onRewardEarned(int amount, @NonNull String type) {
+                    Toast.makeText(getApplicationContext(), "Reward Complete", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFinished(boolean shown) {
+
+                }
+            });
         });
     }
 

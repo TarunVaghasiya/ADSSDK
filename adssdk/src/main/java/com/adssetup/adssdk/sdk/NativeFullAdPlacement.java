@@ -72,6 +72,10 @@ public class NativeFullAdPlacement implements DefaultLifecycleObserver {
         SdkAuthorization.authorize(activity, placement::onAuthorized);
     }
 
+    private static boolean googleAllowed() {
+        return AdsController.isAdsEnabled() && !AdsController.isQuizPriority();
+    }
+
     private static boolean isUsable(@Nullable Activity activity) {
         if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
             return false;
@@ -114,7 +118,7 @@ public class NativeFullAdPlacement implements DefaultLifecycleObserver {
         if (finished || contentShown) {
             return;
         }
-        if (!granted || !AdsController.isAdsEnabled() || !isUsable(activity)) {
+        if (!granted || !googleAllowed() || !isUsable(activity)) {
             close();
             return;
         }
@@ -134,9 +138,15 @@ public class NativeFullAdPlacement implements DefaultLifecycleObserver {
 
     private void onLoaded(@NonNull NativeAd ad) {
         Activity activity = activityReference.get();
-        if (finished || contentShown || !AdsController.isAdsEnabled() || !isUsable(activity)) {
+        if (finished || contentShown) {
             ad.destroy();
-            if (!finished && !contentShown) {
+            return;
+        }
+        if (!googleAllowed() || !isUsable(activity)) {
+            ad.destroy();
+            if (AdsController.isQuizPriority()) {
+                showQuiz();
+            } else {
                 close();
             }
             return;

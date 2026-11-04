@@ -46,7 +46,7 @@ public class NativeAdPlacement {
     }
 
     void load(@NonNull NativeAdCustomView container, @NonNull String adUnitId, @LayoutRes int layoutRes) {
-        if (destroyed || requested || !AdsController.isAdsEnabled()) {
+        if (destroyed || requested || !googleAllowed()) {
             return;
         }
         requested = true;
@@ -65,7 +65,7 @@ public class NativeAdPlacement {
                 MainThread.run(() -> {
                     NativeAdCustomView container = host();
                     if (container != null) {
-                        collapse(container);
+                        container.showFallback();
                     }
                 });
             }
@@ -78,6 +78,11 @@ public class NativeAdPlacement {
             ad.destroy();
             return;
         }
+        if (!googleAllowed()) {
+            ad.destroy();
+            container.showQuiz();
+            return;
+        }
         try {
             container.hideShimmer();
             container.hideFallback();
@@ -85,7 +90,7 @@ public class NativeAdPlacement {
             nativeAd = ad;
         } catch (RuntimeException e) {
             ad.destroy();
-            collapse(container);
+            container.showFallback();
         }
     }
 
@@ -113,7 +118,6 @@ public class NativeAdPlacement {
         adView.setBodyView(body);
 
         if (media != null) {
-            ad.getMediaContent();
             media.setMediaContent(ad.getMediaContent());
         }
 
@@ -132,8 +136,8 @@ public class NativeAdPlacement {
         }
     }
 
-    private static void collapse(@NonNull NativeAdCustomView container) {
-        container.showFallback();
+    private static boolean googleAllowed() {
+        return AdsController.isAdsEnabled() && !AdsController.isQuizPriority();
     }
 
     @Nullable

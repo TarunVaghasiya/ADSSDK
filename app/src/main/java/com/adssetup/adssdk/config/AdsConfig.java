@@ -167,6 +167,8 @@ public class AdsConfig {
         private String secondButtonAdType = "inter";
         private String secondInterstitialId = "ca-app-pub-3940256099942544/1033173712";
         private String secondAppOpenId = "ca-app-pub-3940256099942544/9257395921";
+        private boolean secondRewardAdShow = true;
+        private String secondRewardId = "ca-app-pub-3940256099942544/5224354917";
 
         public boolean isSecondAdShow() {
             return secondAdShow;
@@ -230,6 +232,22 @@ public class AdsConfig {
 
         public void setSecondAppOpenId(String secondAppOpenId) {
             this.secondAppOpenId = secondAppOpenId;
+        }
+
+        public boolean isSecondRewardAdShow() {
+            return secondRewardAdShow;
+        }
+
+        public void setSecondRewardAdShow(boolean secondRewardAdShow) {
+            this.secondRewardAdShow = secondRewardAdShow;
+        }
+
+        public String getSecondRewardId() {
+            return secondRewardId;
+        }
+
+        public void setSecondRewardId(String secondRewardId) {
+            this.secondRewardId = secondRewardId;
         }
     }
 

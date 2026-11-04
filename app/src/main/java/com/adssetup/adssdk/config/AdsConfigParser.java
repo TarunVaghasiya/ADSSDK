@@ -71,6 +71,8 @@ final class AdsConfigParser {
             secondScreen.setSecondButtonAdType(string(second, "Second_Button_Ad_Type", secondScreen.getSecondButtonAdType()));
             secondScreen.setSecondInterstitialId(string(second, "Second_Interstitial_Id", secondScreen.getSecondInterstitialId()));
             secondScreen.setSecondAppOpenId(string(second, "Second_App_Open_Id", secondScreen.getSecondAppOpenId()));
+            secondScreen.setSecondRewardAdShow(second.optBoolean("Second_Reward_Ad_Show", secondScreen.isSecondRewardAdShow()));
+            secondScreen.setSecondRewardId(string(second, "Second_Reward_Id", secondScreen.getSecondRewardId()));
         }
 
         JSONObject quiz = root.optJSONObject("QuizAdsDesign");

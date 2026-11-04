@@ -24,7 +24,9 @@
     "Second_Button_Ad_Show": true,
     "Second_Button_Ad_Type": "inter",
     "Second_Interstitial_Id": "ca-app-pub-3940256099942544/1033173712",
-    "Second_App_Open_Id": "ca-app-pub-3940256099942544/9257395921"
+    "Second_App_Open_Id": "ca-app-pub-3940256099942544/9257395921",
+    "Second_Reward_Ad_Show": true,
+    "Second_Reward_Id": "ca-app-pub-3940256099942544/5224354917"
   },
   "QuizAdsDesign": {
     "Quiz_App_Icon": [

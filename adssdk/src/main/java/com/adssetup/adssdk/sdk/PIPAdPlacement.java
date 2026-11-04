@@ -47,7 +47,7 @@ public class PIPAdPlacement implements DefaultLifecycleObserver {
         if (activity.isFinishing() || activity.isDestroyed()) {
             return;
         }
-        if (!AdsController.isAdsEnabled()) {
+        if (!googleAllowed()) {
             return;
         }
         PIPAdPlacement placement = new PIPAdPlacement(activity, adUnitId, position);
@@ -64,7 +64,7 @@ public class PIPAdPlacement implements DefaultLifecycleObserver {
         if (destroyed) {
             return;
         }
-        if (!granted || !AdsController.isAdsEnabled() || !isHostUsable(activityReference.get())) {
+        if (!granted || !googleAllowed() || !isHostUsable(activityReference.get())) {
             destroy();
             return;
         }
@@ -72,7 +72,7 @@ public class PIPAdPlacement implements DefaultLifecycleObserver {
             @Override
             public void onAdLoaded(@NonNull PictureInPictureAd ad) {
                 MainThread.run(() -> {
-                    if (destroyed || !AdsController.isAdsEnabled()) {
+                    if (destroyed || !googleAllowed()) {
                         ad.destroy();
                         destroy();
                         return;
@@ -91,7 +91,7 @@ public class PIPAdPlacement implements DefaultLifecycleObserver {
 
     private void update() {
         Activity activity = activityReference.get();
-        if (!AdsController.isAdsEnabled()) {
+        if (!googleAllowed()) {
             destroy();
             return;
         }
@@ -112,6 +112,10 @@ public class PIPAdPlacement implements DefaultLifecycleObserver {
             shown = false;
             pipAd.hide();
         }
+    }
+
+    private static boolean googleAllowed() {
+        return AdsController.isAdsEnabled() && !AdsController.isQuizPriority();
     }
 
     private static boolean isHostUsable(@Nullable Activity activity) {

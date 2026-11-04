@@ -54,7 +54,7 @@ public class RewardedAdPlacement implements DefaultLifecycleObserver {
         if (inFlight) {
             return;
         }
-        if (adUnitId.trim().isEmpty() || !AdsController.isAdsEnabled() || !isUsable(activity)) {
+        if (adUnitId.trim().isEmpty() || !googleAllowed() || !isUsable(activity)) {
             if (callback != null) {
                 callback.onFinished(false);
             }
@@ -74,7 +74,7 @@ public class RewardedAdPlacement implements DefaultLifecycleObserver {
         if (finished) {
             return;
         }
-        if (!granted || !AdsController.isAdsEnabled() || !isUsable(activityReference.get())) {
+        if (!granted || !googleAllowed() || !isUsable(activityReference.get())) {
             finish(false);
             return;
         }
@@ -96,7 +96,7 @@ public class RewardedAdPlacement implements DefaultLifecycleObserver {
         if (finished || !isUsable(host)) {
             return;
         }
-        if (!AdsController.isAdsEnabled()) {
+        if (!googleAllowed()) {
             finish(false);
             return;
         }
@@ -123,6 +123,10 @@ public class RewardedAdPlacement implements DefaultLifecycleObserver {
                 callback.onRewardEarned(reward.getAmount(), reward.getType());
             }
         }));
+    }
+
+    private static boolean googleAllowed() {
+        return AdsController.isAdsEnabled() && !AdsController.isQuizPriority();
     }
 
     private static boolean isUsable(@Nullable Activity activity) {

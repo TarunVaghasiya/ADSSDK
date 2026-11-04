@@ -67,17 +67,19 @@ public class SecondActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.tvRewardAd).setOnClickListener(view -> {
-            RewardedAdPlacement.loadRewardedAd(this, second.getSecondRewardId(), new RewardedAdPlacement.Callback() {
-                @Override
-                public void onRewardEarned(int amount, @NonNull String type) {
-                    Toast.makeText(getApplicationContext(), "Reward Complete", Toast.LENGTH_SHORT).show();
-                }
+            if (AdsConfigManager.get().getSecondScreen().isSecondRewardAdShow()) {
+                RewardedAdPlacement.loadRewardedAd(this, AdsConfigManager.get().getSecondScreen().getSecondRewardId(), new RewardedAdPlacement.Callback() {
+                    @Override
+                    public void onRewardEarned(int amount, @NonNull String type) {
+                        Toast.makeText(getApplicationContext(), "Reward Complete", Toast.LENGTH_SHORT).show();
+                    }
 
-                @Override
-                public void onFinished(boolean shown) {
+                    @Override
+                    public void onFinished(boolean shown) {
 
-                }
-            });
+                    }
+                });
+            }
         });
     }
 

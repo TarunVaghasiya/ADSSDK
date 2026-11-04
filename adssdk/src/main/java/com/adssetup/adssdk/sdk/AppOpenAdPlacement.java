@@ -51,7 +51,7 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
     private final Context appContext;
     private final String adUnitId;
     private final Callback callback;
-    private final Runnable timeout = this::showFallback;
+    private final Runnable timeout = () -> showQuiz(false);
     private Dialog dialog;
     private QuizFallbackDialog fallback;
     private AppOpenAd appOpenAd;
@@ -110,12 +110,12 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
     }
 
     private static void preload(@NonNull Context appContext, @NonNull String adUnitId, int retriesLeft) {
-        if (preloading || !AdsController.isAdsEnabled() || takeCachedAd(adUnitId, false) != null) {
+        if (preloading || !googleAllowed() || takeCachedAd(adUnitId, false) != null) {
             return;
         }
         preloading = true;
         SdkAuthorization.authorize(appContext, granted -> {
-            if (!granted || !AdsController.isAdsEnabled()) {
+            if (!granted || !googleAllowed()) {
                 preloading = false;
                 handOverToWaiting(false);
                 return;
@@ -148,7 +148,7 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
     private static void handOverToWaiting(boolean loaded) {
         AppOpenAdPlacement waiting = waitingForPreload;
         waitingForPreload = null;
-        if (waiting == null || waiting.finished) {
+        if (waiting == null || waiting.finished || waiting.fallback != null) {
             return;
         }
         Activity activity = waiting.activityReference.get();
@@ -180,7 +180,7 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
         if (finished) {
             return;
         }
-        if (!granted || !AdsController.isAdsEnabled() || !isUsable(activity)) {
+        if (!granted || !googleAllowed() || !isUsable(activity)) {
             finish(false);
             return;
         }
@@ -199,7 +199,7 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
 
     private void requestAd() {
         Activity activity = activityReference.get();
-        if (finished || !AdsController.isAdsEnabled() || !isUsable(activity)) {
+        if (finished || !googleAllowed() || !isUsable(activity)) {
             finish(false);
             return;
         }
@@ -208,7 +208,7 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
             public void onAdLoaded(@NonNull AppOpenAd ad) {
                 MainThread.run(() -> {
                     Activity host = activityReference.get();
-                    if (finished || !isUsable(host)) {
+                    if (finished || fallback != null || !isUsable(host)) {
                         return;
                     }
                     show(host, ad, false);
@@ -217,7 +217,7 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
 
             @Override
             public void onAdFailedToLoad(@NonNull LoadAdError error) {
-                MainThread.run(() -> showFallback());
+                MainThread.run(() -> showQuiz(false));
             }
         });
     }
@@ -225,6 +225,10 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
     private void show(@NonNull Activity host, @NonNull AppOpenAd ad, boolean cached) {
         if (!AdsController.isAdsEnabled()) {
             finish(false);
+            return;
+        }
+        if (AdsController.isQuizPriority()) {
+            showQuiz(true);
             return;
         }
         appOpenAd = ad;
@@ -237,7 +241,7 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
 
             @Override
             public void onAdFailedToShowFullScreenContent(@NonNull FullScreenContentError error) {
-                MainThread.run(() -> finish(false));
+                MainThread.run(() -> showQuiz(false));
             }
         });
         dismissFallback();
@@ -246,15 +250,15 @@ public class AppOpenAdPlacement implements DefaultLifecycleObserver {
         ad.show(host);
     }
 
+    private static boolean googleAllowed() {
+        return AdsController.isAdsEnabled() && !AdsController.isQuizPriority();
+    }
+
     private static boolean isUsable(@Nullable Activity activity) {
         if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
             return false;
         }
         return !(activity instanceof LifecycleOwner) || ((LifecycleOwner) activity).getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED);
-    }
-
-    private void showFallback() {
-        showQuiz(false);
     }
 
     private void showQuiz(boolean force) {

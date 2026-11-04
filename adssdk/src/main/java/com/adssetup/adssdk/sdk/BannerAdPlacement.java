@@ -50,7 +50,7 @@ public class BannerAdPlacement {
     }
 
     void load(@NonNull BannerAdCustomView container, @NonNull String adUnitId, @NonNull AdSize adSize) {
-        if (destroyed || adView != null || !AdsController.isAdsEnabled()) {
+        if (destroyed || adView != null || !googleAllowed()) {
             return;
         }
         containerReference = new WeakReference<>(container);
@@ -66,6 +66,12 @@ public class BannerAdPlacement {
                 MainThread.run(() -> {
                     BannerAdCustomView container = host();
                     if (container != null && adView == view) {
+                        if (!googleAllowed()) {
+                            container.removeView(view);
+                            releaseAdView();
+                            container.showQuiz();
+                            return;
+                        }
                         container.hideShimmer();
                         container.hideFallback();
                         container.fitToLoadedAd(view, ad.getAdSize());
@@ -98,6 +104,10 @@ public class BannerAdPlacement {
         }
         container.hideShimmer();
         load(container, adUnitId, adSize);
+    }
+
+    private static boolean googleAllowed() {
+        return AdsController.isAdsEnabled() && !AdsController.isQuizPriority();
     }
 
     @Nullable

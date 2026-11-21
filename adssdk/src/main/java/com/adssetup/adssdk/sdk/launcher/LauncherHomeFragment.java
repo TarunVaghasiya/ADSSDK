@@ -166,12 +166,15 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
         if (v instanceof CardView) ((CardView) v).setCardBackgroundColor(bg);
         if (v instanceof TextView) {
             int id = v.getId();
-            if (id == R.id.ad_headline || id == R.id.tvQZAppTitle) ((TextView) v).setTextColor(primary);
-            else if (id == R.id.ad_body || id == R.id.tvQZAppDescription) ((TextView) v).setTextColor(secondary);
+            if (id == R.id.ad_headline || id == R.id.tvQZAppTitle)
+                ((TextView) v).setTextColor(primary);
+            else if (id == R.id.ad_body || id == R.id.tvQZAppDescription)
+                ((TextView) v).setTextColor(secondary);
         }
         if (v instanceof ViewGroup && !(v instanceof ShimmerFrameLayout)) {
             ViewGroup group = (ViewGroup) v;
-            for (int i = 0; i < group.getChildCount(); i++) styleNativeTree(group.getChildAt(i), bg, primary, secondary);
+            for (int i = 0; i < group.getChildCount(); i++)
+                styleNativeTree(group.getChildAt(i), bg, primary, secondary);
         }
     }
 
@@ -292,6 +295,7 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
             }
         }
     }
+
     private void updateBackEnabled() {
         boolean drawerOpen = rootLayout != null && rootLayout.isOpen();
         boolean overlayOpen = (overlays != null && overlays.isAnyOpen()) || searchMode;
@@ -306,6 +310,9 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
         homeLayout = viewModel.getHomeLayout();
         if (savedInstanceState != null) {
             viewModel.setCurrentPage(savedInstanceState.getInt(STATE_PAGE, 0));
+        } else {
+            int pending = pendingReturnPage();
+            if (pending >= 0) viewModel.setCurrentPage(pending);
         }
         requireActivity().getOnBackPressedDispatcher().addCallback(this, backCallback);
         registerPackageReceiver();
@@ -1017,14 +1024,14 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
     }
 
     private final Runnable loadLastPageAd = () -> {
-        if (!isAdded() || adapter == null || pager == null || pager.getCurrentItem() != adapter.getItemCount() - 1) return;
+        if (!isAdded() || adapter == null || pager == null || pager.getCurrentItem() != adapter.getItemCount() - 1)
+            return;
         View page = adapter.greetingScroller();
-        if (page instanceof GreetingPageView && page.isAttachedToWindow()) ((GreetingPageView) page).loadAd(requireActivity());
+        if (page instanceof GreetingPageView && page.isAttachedToWindow())
+            ((GreetingPageView) page).loadAd(requireActivity());
     };
 
     private void onEnterLastPage() {
-        // Debounced: the page reports entering on every scroll frame and its holder may be replaced meanwhile, so the ad
-        // is requested once the pager has settled on the Last Page, by the view that is actually showing.
         if (pager != null) {
             pager.removeCallbacks(loadLastPageAd);
             pager.postDelayed(loadLastPageAd, 200);
@@ -1046,7 +1053,7 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
 
         int columns = COLUMNS;
         int rows = ROWS;
-        int page = adapter.getItemCount() > 0 ? pager.getCurrentItem() : viewModel.getCurrentPage();
+        int page = adapter.appPageCount() > 0 ? pager.getCurrentItem() : viewModel.getCurrentPage();
         int cellH = Math.max(1, h / rows);
         int homeRows = 3;
         homeLayout.setPage0Capacity(homeRows * columns);
@@ -1062,13 +1069,17 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
         if (!apps.isEmpty()) built = true;
         appsDirty = false;
         if (dragController == null || !dragController.isDragging())
-            page = homeLayout.compactPages(page);
+            page = homeLayout.compactPages(page, adapter.appPageCount());
+        int countBefore = adapter.getItemCount();
         adapter.submit(homeLayout.pages(), columns, rows, homeRows, cellH, animate);
         indicator.setCount(adapter.getItemCount());
         bindDock();
         refreshGreetingPage();
 
         int target = Math.min(page, adapter.getItemCount() - 1);
+        if (adapter.getItemCount() != countBefore && pager.getChildAt(0) instanceof androidx.recyclerview.widget.RecyclerView) {
+            ((androidx.recyclerview.widget.RecyclerView) pager.getChildAt(0)).scrollToPosition(target);
+        }
         if (pager.getCurrentItem() != target) pager.setCurrentItem(target, false);
         viewModel.setCurrentPage(target);
         indicator.setPosition(target);
@@ -1078,6 +1089,11 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
     }
 
     public void goToHomePage(boolean returningFromApp) {
+        if (pendingReturnPage() >= 0) {
+            restorePendingPage();
+            clearPendingReturn();
+            return;
+        }
         if (returningFromApp && rootLayout != null && rootLayout.isOpen()) return;
         if (rootLayout != null && rootLayout.isOpen()) rootLayout.closeDrawer(true);
         if (pager != null && pager.getCurrentItem() != 0) pager.setCurrentItem(0, true);
@@ -1086,6 +1102,7 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
     @Override
     public void onStop() {
         super.onStop();
+        handler.removeCallbacks(clearPendingRunnable);
         if (homeLayout != null) homeLayout.flush();
         if (dragController != null) dragController.cancel();
         if (overlays != null) overlays.closeAll();
@@ -1094,6 +1111,8 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
     @Override
     public void onStart() {
         super.onStart();
+        restorePendingPage();
+        handler.postDelayed(clearPendingRunnable, PENDING_GRACE_MS);
         gamesPickedForVisit = false;
         if (adapter != null && pager != null && pager.getCurrentItem() == adapter.getItemCount() - 1)
             onEnterLastPage();
@@ -1367,8 +1386,10 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
             return;
         }
         try {
+            rememberPageForSystemScreen();
             startActivity(new Intent(Intent.ACTION_DELETE, Uri.fromParts("package", pkg, null)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         } catch (ActivityNotFoundException | SecurityException e) {
+            clearPendingReturn();
             Toast.makeText(requireContext(), R.string.toast_uninstall_failed, Toast.LENGTH_SHORT).show();
         }
     }
@@ -1378,6 +1399,43 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
             updatePages(true);
             Toast.makeText(requireContext(), R.string.toast_removed_home, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private static final String NAV_PREFS = "launcher_nav_state";
+    private static final String NAV_PAGE = "return_page";
+    private static final String NAV_AT = "return_at";
+    private static final long RETURN_WINDOW_MS = 10L * 60L * 1000L;
+
+    private void rememberPageForSystemScreen() {
+        if (!isAdded()) return;
+        requireContext().getSharedPreferences(NAV_PREFS, Context.MODE_PRIVATE).edit().putInt(NAV_PAGE, pager != null && adapter != null && adapter.appPageCount() > 0 ? pager.getCurrentItem() : viewModel.getCurrentPage()).putLong(NAV_AT, System.currentTimeMillis()).apply();
+    }
+
+    private int pendingReturnPage() {
+        if (!isAdded()) return -1;
+        android.content.SharedPreferences prefs = requireContext().getSharedPreferences(NAV_PREFS, Context.MODE_PRIVATE);
+        long at = prefs.getLong(NAV_AT, 0L);
+        if (at == 0L || Math.abs(System.currentTimeMillis() - at) > RETURN_WINDOW_MS) return -1;
+        return prefs.getInt(NAV_PAGE, -1);
+    }
+
+    private static final long PENDING_GRACE_MS = 1500L;
+    private final Runnable clearPendingRunnable = this::clearPendingReturn;
+
+    private void restorePendingPage() {
+        int pending = pendingReturnPage();
+        if (pending <= 0 || pager == null || adapter == null || adapter.appPageCount() == 0) return;
+        if (pager.getCurrentItem() != 0) return;
+        int target = Math.min(pending, adapter.getItemCount() - 1);
+        if (target > 0) {
+            pager.setCurrentItem(target, false);
+            viewModel.setCurrentPage(target);
+        }
+    }
+
+    private void clearPendingReturn() {
+        if (isAdded())
+            requireContext().getSharedPreferences(NAV_PREFS, Context.MODE_PRIVATE).edit().clear().apply();
     }
 
     private void openAppInfo(@NonNull ComponentName component) {
@@ -1393,8 +1451,10 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
         }
         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", pkg, null)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try {
+            rememberPageForSystemScreen();
             startActivity(intent);
         } catch (ActivityNotFoundException | SecurityException e) {
+            clearPendingReturn();
             Toast.makeText(requireContext(), R.string.toast_app_info_failed, Toast.LENGTH_SHORT).show();
         }
     }

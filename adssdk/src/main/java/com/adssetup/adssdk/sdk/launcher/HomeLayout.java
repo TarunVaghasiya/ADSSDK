@@ -281,23 +281,27 @@ final class HomeLayout {
         return lastUsedPage() + 1 + (extraPage ? 1 : 0);
     }
 
-    int compactPages(int currentPage) {
+    int compactPages(int currentPage, int gridPageCount) {
         if (extraPage) return currentPage;
         java.util.TreeSet<Integer> used = new java.util.TreeSet<>();
         for (Slot s : slots) if (s.page > 0) used.add(s.page);
+        boolean emptied = !slots.isEmpty() && currentPage > 0 && currentPage < gridPageCount && !used.contains(currentPage);
+        int previousUsed = 0;
+        for (int p : used) if (p < currentPage) previousUsed = p;
         boolean gap = false;
         int expect = 1;
         for (int p : used) {
             if (p != expect) gap = true;
             expect++;
         }
-        if (!gap) return currentPage;
+        if (!gap) return emptied ? previousUsed : currentPage;
         Map<Integer, Integer> map = new HashMap<>();
         int n = 1;
         for (int p : used) map.put(p, n++);
         int newCurrent = 0;
         for (int p : used) if (p <= currentPage) newCurrent = map.get(p);
         if (currentPage == 0) newCurrent = 0;
+        if (emptied) newCurrent = previousUsed == 0 ? 0 : map.get(previousUsed);
         for (Slot s : slots) if (s.page > 0) s.page = map.get(s.page);
         itemCache.clear();
         save();

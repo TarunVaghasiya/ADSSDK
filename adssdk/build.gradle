@@ -36,11 +36,14 @@ android {
 
 dependencies {
     implementation libs.appcompat
+    implementation libs.material
     implementation libs.cardview
     implementation libs.sdp.android
     implementation libs.facebook.shimmer
     implementation libs.glide
-    api libs.ads.mobile.sdk
+    implementation libs.recyclerview
+    implementation libs.viewpager2
+    implementation libs.ads.mobile.sdk
 }
 
 afterEvaluate {

@@ -8,8 +8,10 @@ material = "1.14.0"
 cardview = "1.0.0"
 sdp = "1.1.1"
 shimmer = "0.5.0"
-glide = "4.16.0"
-adsMobileSdk = "1.6.0"
+glide = "5.0.10"
+recyclerview = "1.4.0"
+viewpager2 = "1.1.0"
+adsMobileSdk = "1.7.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -21,6 +23,8 @@ material = { group = "com.google.android.material", name = "material", version.r
 sdp-android = { group = "com.intuit.sdp", name = "sdp-android", version.ref = "sdp" }
 facebook-shimmer = { group = "com.facebook.shimmer", name = "shimmer", version.ref = "shimmer" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }
 ads-mobile-sdk = { group = "com.google.android.libraries.ads.mobile.sdk", name = "ads-mobile-sdk", version.ref = "adsMobileSdk" }
 
 [plugins]

@@ -447,9 +447,9 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
             applyDrawerState();
             updatePages();
         });
+        restoreDrawerIfPending();
     }
 
-    // Lint matches drawerList to recent_list (wrap_content) in the same layout; drawer_list itself is match_parent.
     @SuppressLint("InvalidSetHasFixedSize")
     private void setUpDrawer() {
         drawerAdapter = new DrawerAppsAdapter(this::onAppClicked, this::onDrawerAppLongClicked);
@@ -492,6 +492,7 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
                 refreshRecentHeader();
                 onDrawerAdVisible();
             }
+            if (!open) clearDrawerReturn();
             if (!open && searchMode) exitSearch();
             updateBackEnabled();
         });
@@ -779,7 +780,7 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
         applyMotorolaSearchGravity();
         searchInput.requestFocus();
         android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null)
+        if (imm != null && !restoringDrawer)
             imm.showSoftInput(searchInput, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
         applyDrawerState();
         refreshSearchGestures();
@@ -863,10 +864,13 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
             }
             if (!q.equals(prevQuery)) scrollTopPending = true;
             drawerAdapter.submitList(shown, () -> {
-                if (!scrollTopPending || drawerList == null) return;
-                scrollTopPending = false;
-                drawerList.stopScroll();
-                ((androidx.recyclerview.widget.GridLayoutManager) Objects.requireNonNull(drawerList.getLayoutManager())).scrollToPositionWithOffset(0, 0);
+                if (drawerList == null) return;
+                if (scrollTopPending) {
+                    scrollTopPending = false;
+                    drawerList.stopScroll();
+                    ((androidx.recyclerview.widget.GridLayoutManager) Objects.requireNonNull(drawerList.getLayoutManager())).scrollToPositionWithOffset(0, 0);
+                }
+                applyPendingDrawerScroll();
             });
             recentLayer.setVisibility(View.GONE);
             showDrawerContent(shown, true, !q.equals(prevQuery));
@@ -1094,6 +1098,10 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
             clearPendingReturn();
             return;
         }
+        if (drawerReturnPending()) {
+            restoreDrawerIfPending();
+            return;
+        }
         if (returningFromApp && rootLayout != null && rootLayout.isOpen()) return;
         if (rootLayout != null && rootLayout.isOpen()) rootLayout.closeDrawer(true);
         if (pager != null && pager.getCurrentItem() != 0) pager.setCurrentItem(0, true);
@@ -1112,6 +1120,7 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
     public void onStart() {
         super.onStart();
         restorePendingPage();
+        restoreDrawerIfPending();
         handler.postDelayed(clearPendingRunnable, PENDING_GRACE_MS);
         gamesPickedForVisit = false;
         if (adapter != null && pager != null && pager.getCurrentItem() == adapter.getItemCount() - 1)
@@ -1196,6 +1205,7 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
 
     private void openGameLink(@NonNull QuizGames.QuizGameItem game) {
         try {
+            rememberLaunchSource();
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(game.url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         } catch (ActivityNotFoundException | SecurityException | IllegalArgumentException e) {
             Toast.makeText(requireContext(), R.string.game_link_failed, Toast.LENGTH_SHORT).show();
@@ -1217,6 +1227,7 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
         RecentApps.record(requireContext(), app.component);
         Intent intent = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).setComponent(app.component).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         try {
+            rememberLaunchSource();
             startActivity(intent);
         } catch (ActivityNotFoundException | SecurityException e) {
             Toast.makeText(requireContext(), R.string.app_launch_failed, Toast.LENGTH_SHORT).show();
@@ -1401,6 +1412,74 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
         }
     }
 
+    private static final String DRAWER_RETURN_PREFS = "launcher_drawer_return";
+    private static final long DRAWER_RETURN_WINDOW_MS = 30L * 60L * 1000L;
+    private boolean restoringDrawer;
+    private int pendingDrawerScrollPos = -1;
+    private int pendingDrawerScrollOffset;
+
+    private void rememberLaunchSource() {
+        if (!isAdded()) return;
+        android.content.SharedPreferences.Editor edit = requireContext().getSharedPreferences(DRAWER_RETURN_PREFS, Context.MODE_PRIVATE).edit().clear();
+        if (rootLayout != null && rootLayout.isOpen() && !noDrawer()) {
+            edit.putBoolean("from_drawer", true).putLong("at", System.currentTimeMillis());
+            edit.putBoolean("search", searchMode).putString("query", searchMode && searchInput != null ? searchInput.getText().toString() : "");
+            androidx.recyclerview.widget.RecyclerView.LayoutManager lm = drawerList == null ? null : drawerList.getLayoutManager();
+            if (lm instanceof androidx.recyclerview.widget.LinearLayoutManager) {
+                int pos = ((androidx.recyclerview.widget.LinearLayoutManager) lm).findFirstVisibleItemPosition();
+                View first = pos >= 0 ? lm.findViewByPosition(pos) : null;
+                edit.putInt("scroll_pos", pos).putInt("scroll_off", first == null ? 0 : first.getTop() - drawerList.getPaddingTop());
+            }
+            edit.putInt("grid_page", samsungGrid && drawerPager != null ? drawerPager.getCurrentItem() : -1);
+        }
+        edit.apply();
+    }
+
+    private boolean drawerReturnPending() {
+        if (!isAdded() || noDrawer()) return false;
+        android.content.SharedPreferences p = requireContext().getSharedPreferences(DRAWER_RETURN_PREFS, Context.MODE_PRIVATE);
+        long at = p.getLong("at", 0L);
+        return p.getBoolean("from_drawer", false) && at != 0L && Math.abs(System.currentTimeMillis() - at) <= DRAWER_RETURN_WINDOW_MS;
+    }
+
+    private void clearDrawerReturn() {
+        if (isAdded())
+            requireContext().getSharedPreferences(DRAWER_RETURN_PREFS, Context.MODE_PRIVATE).edit().clear().apply();
+    }
+
+    private void restoreDrawerIfPending() {
+        if (rootLayout == null || !drawerReturnPending() || rootLayout.isOpen()) return;
+        android.content.SharedPreferences p = requireContext().getSharedPreferences(DRAWER_RETURN_PREFS, Context.MODE_PRIVATE);
+        restoringDrawer = true;
+        try {
+            if (p.getBoolean("search", false) && searchInput != null) {
+                String query = p.getString("query", "");
+                if (!query.isEmpty()) searchInput.setText(query);
+                enterSearch();
+            }
+            pendingDrawerScrollPos = p.getInt("scroll_pos", -1);
+            pendingDrawerScrollOffset = p.getInt("scroll_off", 0);
+            int gridPage = p.getInt("grid_page", -1);
+            if (gridPage >= 0 && samsungGrid && drawerPager != null && drawerPager.getAdapter() != null && gridPage < drawerPager.getAdapter().getItemCount()) {
+                drawerPager.setCurrentItem(gridPage, false);
+            }
+            rootLayout.openDrawer(false);
+            applyPendingDrawerScroll();
+        } finally {
+            restoringDrawer = false;
+        }
+    }
+
+    private void applyPendingDrawerScroll() {
+        if (pendingDrawerScrollPos < 0 || drawerList == null || drawerAdapter == null || drawerAdapter.getItemCount() == 0)
+            return;
+        androidx.recyclerview.widget.RecyclerView.LayoutManager lm = drawerList.getLayoutManager();
+        if (lm instanceof androidx.recyclerview.widget.LinearLayoutManager) {
+            ((androidx.recyclerview.widget.LinearLayoutManager) lm).scrollToPositionWithOffset(Math.min(pendingDrawerScrollPos, drawerList.getAdapter() == null ? 0 : Math.max(0, drawerList.getAdapter().getItemCount() - 1)), pendingDrawerScrollOffset);
+        }
+        pendingDrawerScrollPos = -1;
+    }
+
     private static final String NAV_PREFS = "launcher_nav_state";
     private static final String NAV_PAGE = "return_page";
     private static final String NAV_AT = "return_at";
@@ -1420,7 +1499,10 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
     }
 
     private static final long PENDING_GRACE_MS = 1500L;
-    private final Runnable clearPendingRunnable = this::clearPendingReturn;
+    private final Runnable clearPendingRunnable = () -> {
+        clearPendingReturn();
+        clearDrawerReturn();
+    };
 
     private void restorePendingPage() {
         int pending = pendingReturnPage();

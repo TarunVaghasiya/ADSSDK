@@ -254,7 +254,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:background="@drawable/bg_drawer_ad"
-            android:minHeight="70dp"
             android:visibility="gone">
 
             <com.adssetup.adssdk.sdk.BannerAdCustomView

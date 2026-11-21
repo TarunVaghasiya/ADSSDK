@@ -1,9 +1,12 @@
 package com.adssetup.adssdk.sdk.launcher;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +17,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
+import com.adssetup.adssdk.sdk.AdsController;
+import com.adssetup.adssdk.sdk.BannerAdCustomView;
+import com.adssetup.adssdk.sdk.BannerAdPlacement;
+import com.adssetup.adssdk.sdk.NativeAdCustomView;
+import com.adssetup.adssdk.sdk.NativeAdPlacement;
 import com.adssetup.adssdk.sdk.R;
 
 import java.text.SimpleDateFormat;
@@ -34,6 +42,7 @@ final class GreetingPageView extends ScrollView {
     private final LinearLayout suggestedRows;
     private final LinearLayout gamesRows;
     private boolean receiverRegistered;
+    private boolean adRequested;
     private Consumer<AppInfo> onApp;
     private AppInfo game;
 
@@ -77,6 +86,50 @@ final class GreetingPageView extends ScrollView {
             if (game != null && onApp != null) onApp.accept(game);
         });
         refresh();
+    }
+
+    void loadAd(@NonNull Activity activity) {
+        if (adRequested) return;
+        View container = findViewById(R.id.greeting_ad);
+        String type = AdsController.getLauncherLastPageAdType();
+        boolean banner = "banner".equalsIgnoreCase(type);
+        boolean nativeAd = "native".equalsIgnoreCase(type);
+        String adUnitId = banner ? AdsController.getLauncherLastPageBannerId() : nativeAd ? AdsController.getLauncherLastPageNativeId() : "";
+        if (!AdsController.isAdsEnabled() || !AdsController.isLauncherLastPageAdShow() || adUnitId.isEmpty()) {
+            adRequested = true;
+            container.setVisibility(GONE);
+            return;
+        }
+        if (container.getWidth() == 0) return;
+        adRequested = true;
+        View adView;
+        if (banner) {
+            adView = findViewById(R.id.greeting_banner_ad);
+        } else {
+            adView = LayoutInflater.from(lightContext(getContext())).inflate(R.layout.view_greeting_native_ad, (ViewGroup) container, false);
+            ((ViewGroup) container).addView(adView);
+        }
+        container.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
+            if (adView.getVisibility() == GONE && v.getVisibility() != GONE) v.post(() -> v.setVisibility(GONE));
+        });
+        adView.setVisibility(VISIBLE);
+        if (banner) {
+            ViewGroup.LayoutParams lp = adView.getLayoutParams();
+            lp.width = Math.min(container.getWidth(), Math.round(300 * getResources().getDisplayMetrics().density));
+            adView.setLayoutParams(lp);
+            adView.post(() -> BannerAdPlacement.loadBannerAd(activity, adUnitId, (BannerAdCustomView) adView));
+        } else {
+            NativeAdPlacement.loadNativeAd(activity, adUnitId, (NativeAdCustomView) adView);
+        }
+    }
+
+    @NonNull
+    private static Context lightContext(@NonNull Context base) {
+        Configuration config = new Configuration(base.getResources().getConfiguration());
+        config.uiMode = (config.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | Configuration.UI_MODE_NIGHT_NO;
+        ContextThemeWrapper light = new ContextThemeWrapper(base, R.style.Theme_LauncherSDK);
+        light.applyOverrideConfiguration(config);
+        return light;
     }
 
     void setTopOffset(int px) {

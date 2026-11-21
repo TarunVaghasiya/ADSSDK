@@ -13,6 +13,7 @@ public class AdsConfig {
     private String nativeAdButtonColor = "";
     private final MainScreen mainScreen = new MainScreen();
     private final SecondScreen secondScreen = new SecondScreen();
+    private final LauncherScreen launcherScreen = new LauncherScreen();
     private final QuizAdsDesign quizAdsDesign = new QuizAdsDesign();
 
     public boolean isAppAllAdsShow() {
@@ -77,6 +78,10 @@ public class AdsConfig {
 
     public SecondScreen getSecondScreen() {
         return secondScreen;
+    }
+
+    public LauncherScreen getLauncherScreen() {
+        return launcherScreen;
     }
 
     public QuizAdsDesign getQuizAdsDesign() {
@@ -266,6 +271,45 @@ public class AdsConfig {
 
         public void setSecondRewardId(String secondRewardId) {
             this.secondRewardId = secondRewardId;
+        }
+    }
+
+    public static class LauncherScreen {
+        private boolean launcherLastPageAdShow = true;
+        private String launcherLastPageAdType = "banner";
+        private String launcherLastPageBannerId = "ca-app-pub-3940256099942544/9214589741";
+        private String launcherLastPageNativeId = "ca-app-pub-3940256099942544/2247696110";
+
+        public boolean isLauncherLastPageAdShow() {
+            return launcherLastPageAdShow;
+        }
+
+        public void setLauncherLastPageAdShow(boolean launcherLastPageAdShow) {
+            this.launcherLastPageAdShow = launcherLastPageAdShow;
+        }
+
+        public String getLauncherLastPageAdType() {
+            return launcherLastPageAdType;
+        }
+
+        public void setLauncherLastPageAdType(String launcherLastPageAdType) {
+            this.launcherLastPageAdType = launcherLastPageAdType;
+        }
+
+        public String getLauncherLastPageBannerId() {
+            return launcherLastPageBannerId;
+        }
+
+        public void setLauncherLastPageBannerId(String launcherLastPageBannerId) {
+            this.launcherLastPageBannerId = launcherLastPageBannerId;
+        }
+
+        public String getLauncherLastPageNativeId() {
+            return launcherLastPageNativeId;
+        }
+
+        public void setLauncherLastPageNativeId(String launcherLastPageNativeId) {
+            this.launcherLastPageNativeId = launcherLastPageNativeId;
         }
     }
 

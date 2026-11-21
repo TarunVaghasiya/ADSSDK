@@ -860,6 +860,9 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
     }
 
     private void onEnterLastPage() {
+        if (adapter != null && adapter.greetingScroller() instanceof GreetingPageView) {
+            ((GreetingPageView) adapter.greetingScroller()).loadAd(requireActivity());
+        }
         if (gamesPickedForVisit || homeLayout == null) return;
         gamesPickedForVisit = true;
         if (adapter != null && adapter.greetingScroller() instanceof GreetingPageView) {

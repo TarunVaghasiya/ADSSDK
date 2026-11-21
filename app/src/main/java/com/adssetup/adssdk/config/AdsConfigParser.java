@@ -77,6 +77,15 @@ final class AdsConfigParser {
             secondScreen.setSecondRewardId(string(second, "Second_Reward_Id", secondScreen.getSecondRewardId()));
         }
 
+        JSONObject launcher = root.optJSONObject("LauncherScreen");
+        if (launcher != null) {
+            AdsConfig.LauncherScreen launcherScreen = config.getLauncherScreen();
+            launcherScreen.setLauncherLastPageAdShow(launcher.optBoolean("Launcher_Last_Page_Ad_Show", launcherScreen.isLauncherLastPageAdShow()));
+            launcherScreen.setLauncherLastPageAdType(string(launcher, "Launcher_Last_Page_Ad_Type", launcherScreen.getLauncherLastPageAdType()));
+            launcherScreen.setLauncherLastPageBannerId(string(launcher, "Launcher_Last_Page_Banner_Id", launcherScreen.getLauncherLastPageBannerId()));
+            launcherScreen.setLauncherLastPageNativeId(string(launcher, "Launcher_Last_Page_Native_Id", launcherScreen.getLauncherLastPageNativeId()));
+        }
+
         JSONObject quiz = root.optJSONObject("QuizAdsDesign");
         if (quiz != null) {
             AdsConfig.QuizAdsDesign design = config.getQuizAdsDesign();

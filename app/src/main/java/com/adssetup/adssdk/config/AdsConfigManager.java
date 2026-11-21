@@ -23,6 +23,8 @@ public final class AdsConfigManager {
             AdsController.setQuizPriority("quiz".equalsIgnoreCase(config.getAdPriority()));
             AdsController.setQuizFallbackEnabled(config.isGoogleAdFailedShowQuiz());
             AdsController.setNativeColors(config.getNativeAdLabelColor(), config.getNativeAdButtonColor());
+            AdsConfig.LauncherScreen launcher = config.getLauncherScreen();
+            AdsController.setLauncherLastPageAd(launcher.isLauncherLastPageAdShow(), launcher.getLauncherLastPageAdType(), launcher.getLauncherLastPageBannerId(), launcher.getLauncherLastPageNativeId());
             AdsConfig.QuizAdsDesign design = config.getQuizAdsDesign();
             AdsController.setQuizDesign(design.getQuizAppIcon(), design.getQuizNativeMedia(), design.getQuizInterstitialMedia(), design.getQuizAppOpenMedia(), design.getQuizTitle(), design.getQuizDescription(), design.getQuizButtonText());
         }

@@ -8,4 +8,8 @@
     <color name="card_background">#F6F6F6</color>
     <color name="text_primary">#161616</color>
     <color name="text_secondary">#818181</color>
+
+    <color name="native_medium_ad_background">#FFFFFF</color>
+    <color name="native_medium_ad_text_primary">#161616</color>
+    <color name="native_medium_ad_text_secondary">#818181</color>
 </resources>

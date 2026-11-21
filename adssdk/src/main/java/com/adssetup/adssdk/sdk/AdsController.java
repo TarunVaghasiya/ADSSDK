@@ -43,8 +43,38 @@ public final class AdsController {
     private static volatile String quizButtonText = "";
     private static volatile Integer nativeLabelColor;
     private static volatile Integer nativeButtonColor;
+    private static volatile boolean launcherLastPageAdShow;
+    private static volatile String launcherLastPageAdType = "";
+    private static volatile String launcherLastPageBannerId = "";
+    private static volatile String launcherLastPageNativeId = "";
 
     private AdsController() {
+    }
+
+    public static void setLauncherLastPageAd(boolean show, @Nullable String type, @Nullable String bannerId, @Nullable String nativeId) {
+        launcherLastPageAdShow = show;
+        launcherLastPageAdType = type == null ? "" : type;
+        launcherLastPageBannerId = bannerId == null ? "" : bannerId;
+        launcherLastPageNativeId = nativeId == null ? "" : nativeId;
+    }
+
+    public static boolean isLauncherLastPageAdShow() {
+        return launcherLastPageAdShow;
+    }
+
+    @NonNull
+    public static String getLauncherLastPageAdType() {
+        return launcherLastPageAdType;
+    }
+
+    @NonNull
+    public static String getLauncherLastPageBannerId() {
+        return launcherLastPageBannerId;
+    }
+
+    @NonNull
+    public static String getLauncherLastPageNativeId() {
+        return launcherLastPageNativeId;
     }
 
     public static void setAdsEnabled(boolean enabled) {

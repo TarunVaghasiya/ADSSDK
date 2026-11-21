@@ -8,7 +8,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/card_background"
+        android:background="@color/native_medium_ad_background"
         android:padding="@dimen/_10sdp">
 
         <LinearLayout
@@ -26,7 +26,7 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="@dimen/_40sdp"
                     android:layout_height="@dimen/_40sdp"
-                    app:cardBackgroundColor="@color/card_background"
+                    app:cardBackgroundColor="@color/native_medium_ad_background"
                     app:cardCornerRadius="@dimen/_6sdp"
                     app:cardElevation="0dp">
 
@@ -63,7 +63,7 @@
                         android:fontFamily="@font/fig_tree_bold"
                         android:maxLines="2"
                         android:text="@string/ad_headline_placeholder"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/native_medium_ad_text_primary"
                         android:textSize="@dimen/_11sdp" />
 
                 </LinearLayout>
@@ -78,7 +78,7 @@
                 android:fontFamily="@font/fig_tree_medium"
                 android:maxLines="3"
                 android:text="@string/ad_body_placeholder"
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/native_medium_ad_text_secondary"
                 android:textSize="@dimen/_9sdp" />
 
             <androidx.appcompat.widget.AppCompatButton

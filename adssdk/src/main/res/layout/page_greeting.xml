@@ -31,21 +31,21 @@
         android:textSize="18sp" />
 
     <FrameLayout
+        android:id="@+id/greeting_ad"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/bg_ad_box">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_ad_box"
+        android:clipToOutline="true"
+        tools:ignore="UnusedAttribute">
 
-        <TextView
+        <com.adssetup.adssdk.sdk.BannerAdCustomView
+            android:id="@+id/greeting_banner_ad"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fontFamily="@font/fig_tree_medium"
-            android:gravity="center"
-            android:letterSpacing="0.08"
-            android:text="@string/advertisement"
-            android:textAllCaps="true"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp" />
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            app:bannerAdSize="medium" />
 
     </FrameLayout>
 

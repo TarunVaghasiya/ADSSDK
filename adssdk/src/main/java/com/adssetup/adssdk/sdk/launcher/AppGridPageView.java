@@ -108,7 +108,8 @@ public class AppGridPageView extends ViewGroup {
         int iconPx = lastIconPx > 0 ? lastIconPx : DeviceLayout.iconPx(getContext());
         float labelBlock = 24 * density;
         out[0] = cellLeft(cell, cellW) + cellW / 2f;
-        out[1] = ((float) cell / columns) * ch + (ch - (iconPx + labelBlock)) / 2f + iconPx / 2f;
+        int row = cell / columns;
+        out[1] = row * ch + (ch - (iconPx + labelBlock)) / 2f + iconPx / 2f;
     }
 
     void setHoverCell(int cell) {
@@ -277,7 +278,8 @@ public class AppGridPageView extends ViewGroup {
                 float[] p = prev.get(ordered[i]);
                 if (p == null || fresh[i]) continue;
                 float ddx = p[0] - cellLeft(newCellOf[i], cellW);
-                float ddy = p[1] - ((float) newCellOf[i] / columns) * cellH;
+                int newRow = newCellOf[i] / columns;
+                float ddy = p[1] - newRow * cellH;
                 if (Math.abs(ddx) < 1f && Math.abs(ddy) < 1f) continue;
                 vs[m] = ordered[i];
                 dx[m] = ddx;
@@ -342,7 +344,8 @@ public class AppGridPageView extends ViewGroup {
         int iconPx = lastIconPx > 0 ? lastIconPx : DeviceLayout.iconPx(getContext());
         float labelBlock = 6 * density + 18 * density;
         float cx = cellLeft(hoverCell, cellW) + cellW / 2f;
-        float top = ((float) hoverCell / columns) * cellH + (cellH - (iconPx + labelBlock)) / 2f;
+        int hoverRow = hoverCell / columns;
+        float top = hoverRow * cellH + (cellH - (iconPx + labelBlock)) / 2f;
         float outset = 3 * density;
         IconShape.fit(ringPath, cx - iconPx / 2f - outset, top - outset, iconPx + 2 * outset);
         canvas.drawPath(ringPath, ringPaint);

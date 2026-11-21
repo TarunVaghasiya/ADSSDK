@@ -7,21 +7,8 @@
     <string name="ad_loading">LOADING ADS…</string>
     <string name="ad_continue_to_app">Continue to app</string>
 
-    <string name="launcher_title">LauncherSDK</string>
     <string name="search_hint">Search</string>
     <string name="app_launch_failed">Unable to open app</string>
-    <string name="set_launcher">Set Launcher</string>
-    <string name="change_launcher">Change Launcher</string>
-    <string name="open_launcher">Open Launcher</string>
-    <string name="status_default">LauncherSDK is your default Home app.</string>
-    <string name="status_not_default">LauncherSDK is not your default Home app.</string>
-    <string name="dialog_title">Set as default Home app?</string>
-    <string name="dialog_message">You can make LauncherSDK your default Home (launcher) app. After you continue, Android will ask you to choose it. Pressing the Home button will then open LauncherSDK. You can switch back to another launcher at any time.</string>
-    <string name="dialog_title_already">Already your default launcher</string>
-    <string name="dialog_message_already">LauncherSDK is already your default Home app. You can open the system chooser to pick a different launcher.</string>
-    <string name="proceed">Continue</string>
-    <string name="change">Change</string>
-    <string name="cancel">Cancel</string>
     <string name="menu_app_info">App Info</string>
     <string name="menu_ungroup">Remove</string>
     <string name="menu_remove_from_home">Remove</string>
@@ -32,11 +19,10 @@
     <string name="menu_rename">Rename</string>
     <string name="menu_remove_from_folder">Remove</string>
     <string name="menu_add_to_home">Add to Home</string>
-    <string name="toast_removed_home">Removed from the home screen. It is still installed and in the app drawer.</string>
-    <string name="toast_added_home">Added back to the home screen.</string>
+    <string name="toast_removed_home">Removed from the home screen.</string>
+    <string name="toast_added_home">Added to the home screen.</string>
     <string name="toast_not_installed">This app is no longer installed.</string>
     <string name="toast_app_info_failed">Cannot open App Info.</string>
-    <string name="launcher_not_set">LauncherSDK was not set as the default Home app.</string>
     <string name="drawer_search_hint">Search Apps</string>
     <string name="drawer_search_clear">Clear search</string>
     <string name="drawer_search_menu">More options</string>

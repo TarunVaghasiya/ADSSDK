@@ -47,8 +47,38 @@ public final class AdsController {
     private static volatile String launcherLastPageAdType = "";
     private static volatile String launcherLastPageBannerId = "";
     private static volatile String launcherLastPageNativeId = "";
+    private static volatile boolean launcherDrawerAdShow;
+    private static volatile String launcherDrawerAdType = "";
+    private static volatile String launcherDrawerBannerId = "";
+    private static volatile String launcherDrawerNativeId = "";
 
     private AdsController() {
+    }
+
+    public static void setLauncherDrawerAd(boolean show, @Nullable String type, @Nullable String bannerId, @Nullable String nativeId) {
+        launcherDrawerAdShow = show;
+        launcherDrawerAdType = type == null ? "" : type;
+        launcherDrawerBannerId = bannerId == null ? "" : bannerId;
+        launcherDrawerNativeId = nativeId == null ? "" : nativeId;
+    }
+
+    public static boolean isLauncherDrawerAdShow() {
+        return launcherDrawerAdShow;
+    }
+
+    @NonNull
+    public static String getLauncherDrawerAdType() {
+        return launcherDrawerAdType;
+    }
+
+    @NonNull
+    public static String getLauncherDrawerBannerId() {
+        return launcherDrawerBannerId;
+    }
+
+    @NonNull
+    public static String getLauncherDrawerNativeId() {
+        return launcherDrawerNativeId;
     }
 
     public static void setLauncherLastPageAd(boolean show, @Nullable String type, @Nullable String bannerId, @Nullable String nativeId) {

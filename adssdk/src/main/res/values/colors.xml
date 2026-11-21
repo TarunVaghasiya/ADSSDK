@@ -12,4 +12,11 @@
     <color name="native_medium_ad_background">#FFFFFF</color>
     <color name="native_medium_ad_text_primary">#161616</color>
     <color name="native_medium_ad_text_secondary">#818181</color>
+
+    <color name="drawer_search_bar_background">#4A4C4C</color>
+    <color name="drawer_search_bar_background_light">#F2FFFFFF</color>
+    <color name="drawer_ad_text_on_light">#161616</color>
+    <color name="drawer_ad_text_secondary_on_light">#818181</color>
+    <color name="drawer_ad_text_on_dark">#FFFFFF</color>
+    <color name="drawer_ad_text_secondary_on_dark">#BDBDBD</color>
 </resources>

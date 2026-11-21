@@ -275,10 +275,46 @@ public class AdsConfig {
     }
 
     public static class LauncherScreen {
+        private boolean launcherDrawerAdShow = true;
+        private String launcherDrawerAdType = "banner";
+        private String launcherDrawerBannerId = "ca-app-pub-3940256099942544/9214589741";
+        private String launcherDrawerNativeId = "ca-app-pub-3940256099942544/2247696110";
         private boolean launcherLastPageAdShow = true;
         private String launcherLastPageAdType = "banner";
         private String launcherLastPageBannerId = "ca-app-pub-3940256099942544/9214589741";
         private String launcherLastPageNativeId = "ca-app-pub-3940256099942544/2247696110";
+
+        public boolean isLauncherDrawerAdShow() {
+            return launcherDrawerAdShow;
+        }
+
+        public void setLauncherDrawerAdShow(boolean launcherDrawerAdShow) {
+            this.launcherDrawerAdShow = launcherDrawerAdShow;
+        }
+
+        public String getLauncherDrawerAdType() {
+            return launcherDrawerAdType;
+        }
+
+        public void setLauncherDrawerAdType(String launcherDrawerAdType) {
+            this.launcherDrawerAdType = launcherDrawerAdType;
+        }
+
+        public String getLauncherDrawerBannerId() {
+            return launcherDrawerBannerId;
+        }
+
+        public void setLauncherDrawerBannerId(String launcherDrawerBannerId) {
+            this.launcherDrawerBannerId = launcherDrawerBannerId;
+        }
+
+        public String getLauncherDrawerNativeId() {
+            return launcherDrawerNativeId;
+        }
+
+        public void setLauncherDrawerNativeId(String launcherDrawerNativeId) {
+            this.launcherDrawerNativeId = launcherDrawerNativeId;
+        }
 
         public boolean isLauncherLastPageAdShow() {
             return launcherLastPageAdShow;

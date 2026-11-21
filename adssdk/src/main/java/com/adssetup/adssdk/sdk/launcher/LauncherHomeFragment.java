@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,7 +27,9 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -33,7 +37,13 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.adssetup.adssdk.sdk.AdsController;
+import com.adssetup.adssdk.sdk.BannerAdCustomView;
+import com.adssetup.adssdk.sdk.BannerAdPlacement;
+import com.adssetup.adssdk.sdk.NativeAdCustomView;
+import com.adssetup.adssdk.sdk.NativeAdPlacement;
 import com.adssetup.adssdk.sdk.R;
+import com.facebook.shimmer.ShimmerFrameLayout;
 
 import java.util.Collections;
 import java.util.List;
@@ -62,6 +72,97 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
     private boolean samsungSearch;
     private boolean motorolaSearch;
     private int imeBottom;
+    private View drawerAdView;
+    private boolean drawerAdEnabled;
+    private boolean drawerAdRequested;
+
+    private void setUpDrawerAd() {
+        drawerAdView = null;
+        drawerAdEnabled = false;
+        drawerAdRequested = false;
+        View container = drawerView.findViewById(R.id.drawer_ad);
+        String type = AdsController.getLauncherDrawerAdType();
+        boolean banner = "banner".equalsIgnoreCase(type);
+        boolean nativeAd = "native".equalsIgnoreCase(type);
+        String adUnitId = banner ? AdsController.getLauncherDrawerBannerId() : nativeAd ? AdsController.getLauncherDrawerNativeId() : "";
+        if (!AdsController.isAdsEnabled() || !AdsController.isLauncherDrawerAdShow() || adUnitId.isEmpty()) {
+            container.setVisibility(View.GONE);
+            return;
+        }
+        drawerAdView = drawerView.findViewById(banner ? R.id.drawer_banner_ad : R.id.drawer_native_ad);
+        if (drawerAdView instanceof NativeAdCustomView) {
+            styleDrawerNative((NativeAdCustomView) drawerAdView);
+            container.setMinimumHeight(0);
+        }
+        drawerAdView.setVisibility(View.VISIBLE);
+        drawerAdEnabled = true;
+        container.setVisibility(View.VISIBLE);
+        container.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
+            if (drawerAdEnabled && drawerAdView != null && drawerAdView.getVisibility() == View.GONE) {
+                drawerAdEnabled = false;
+                v.post(() -> v.setVisibility(View.GONE));
+            }
+        });
+    }
+
+    private void loadDrawerAdOnce() {
+        if (!drawerAdEnabled || drawerAdRequested || drawerAdView == null) return;
+        drawerAdRequested = true;
+        if (drawerAdView instanceof BannerAdCustomView) {
+            BannerAdPlacement.loadBannerAd(requireActivity(), AdsController.getLauncherDrawerBannerId(), (BannerAdCustomView) drawerAdView);
+        } else {
+            NativeAdPlacement.loadNativeAd(requireActivity(), AdsController.getLauncherDrawerNativeId(), (NativeAdCustomView) drawerAdView);
+        }
+    }
+
+    private int searchBarColor() {
+        View bar = drawerView == null ? null : drawerView.findViewById(R.id.search_bar);
+        if (bar != null && bar.getBackground() instanceof GradientDrawable) {
+            ColorStateList color = ((GradientDrawable) bar.getBackground()).getColor();
+            if (color != null) return color.getDefaultColor();
+        }
+        return ContextCompat.getColor(requireContext(), R.color.drawer_search_bar_background);
+    }
+
+    private void styleDrawerNative(@NonNull NativeAdCustomView nativeView) {
+        nativeView.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
+            @Override
+            public void onChildViewAdded(View parent, View child) {
+                applyDrawerNativeStyle(child);
+            }
+
+            @Override
+            public void onChildViewRemoved(View parent, View child) {
+            }
+        });
+    }
+
+    private void applyDrawerNativeStyle(@NonNull View child) {
+        if (getContext() == null || drawerView == null) return;
+        int bg = searchBarColor();
+        boolean lightBackground = ColorUtils.calculateLuminance(bg) > 0.5;
+        int primary = ContextCompat.getColor(requireContext(), lightBackground ? R.color.drawer_ad_text_on_light : R.color.drawer_ad_text_on_dark);
+        int secondary = ContextCompat.getColor(requireContext(), lightBackground ? R.color.drawer_ad_text_secondary_on_light : R.color.drawer_ad_text_secondary_on_dark);
+        View panel = child;
+        if (child.getId() == R.id.native_ad_view && child instanceof ViewGroup && ((ViewGroup) child).getChildCount() > 0) {
+            panel = ((ViewGroup) child).getChildAt(0);
+        }
+        panel.setBackgroundColor(bg);
+        styleNativeTree(panel, bg, primary, secondary);
+    }
+
+    private static void styleNativeTree(@NonNull View v, int bg, int primary, int secondary) {
+        if (v instanceof CardView) ((CardView) v).setCardBackgroundColor(bg);
+        if (v instanceof TextView) {
+            int id = v.getId();
+            if (id == R.id.ad_headline || id == R.id.tvQZAppTitle) ((TextView) v).setTextColor(primary);
+            else if (id == R.id.ad_body || id == R.id.tvQZAppDescription) ((TextView) v).setTextColor(secondary);
+        }
+        if (v instanceof ViewGroup && !(v instanceof ShimmerFrameLayout)) {
+            ViewGroup group = (ViewGroup) v;
+            for (int i = 0; i < group.getChildCount(); i++) styleNativeTree(group.getChildAt(i), bg, primary, secondary);
+        }
+    }
 
     private void setMotorolaKeyboardResize(boolean resize) {
         if (!motorolaSearch || getActivity() == null) return;
@@ -172,6 +273,7 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
         homeContent = view.findViewById(R.id.home_content);
         drawerView = view.findViewById(R.id.drawer);
         drawerList = view.findViewById(R.id.drawer_list);
+        setUpDrawerAd();
         final boolean pixelDrawer = DeviceLayout.isPixel(requireContext());
         if (pixelDrawer) view.findViewById(R.id.drawer_handle).setVisibility(View.VISIBLE);
         ViewCompat.setOnApplyWindowInsetsListener(view, (v, windowInsets) -> {
@@ -191,7 +293,7 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
             View drawerAd = drawerView.findViewById(R.id.drawer_ad);
             ViewGroup.MarginLayoutParams adLp = (ViewGroup.MarginLayoutParams) drawerAd.getLayoutParams();
             if (motorolaSearch) {
-                int adVis = imeBottom > 0 ? View.GONE : View.VISIBLE;
+                int adVis = imeBottom > 0 || !drawerAdEnabled ? View.GONE : View.VISIBLE;
                 if (drawerAd.getVisibility() != adVis) drawerAd.setVisibility(adVis);
             }
             int adBottom = motorolaSearch ? 0 : bars.bottom;
@@ -318,7 +420,10 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
                 }
             }
             setMotorolaKeyboardResize(open);
-            if (open) refreshRecentHeader();
+            if (open) {
+                refreshRecentHeader();
+                loadDrawerAdOnce();
+            }
             if (!open && searchMode) exitSearch();
             updateBackEnabled();
         });
@@ -429,17 +534,8 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
     }
 
     private void matchAdToSearchBar(@NonNull View view) {
-        int bg = 0xFF4A4C4C;
-        int fg = 0xFFFFFFFF;
-        if (motorolaSearch || pixelSearch) {
-            bg = 0xF2FFFFFF;
-            fg = 0xFF313131;
-        } else if (samsungSearch) {
-            fg = 0xFFBDBDBD;
-        }
-        View ad = view.findViewById(R.id.drawer_ad);
-        ad.setBackgroundColor(bg);
-        ((TextView) ((ViewGroup) ad).getChildAt(0)).setTextColor(fg);
+        // The native ad paints the search bar color itself; a second translucent layer behind it would not match the bar.
+        view.findViewById(R.id.drawer_ad).setBackgroundColor(drawerAdView instanceof NativeAdCustomView ? android.graphics.Color.TRANSPARENT : searchBarColor());
     }
 
     private void applyMotorolaSearchGravity() {
@@ -969,6 +1065,9 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
         rootLayout = null;
         homeContent = null;
         drawerView = null;
+        drawerAdView = null;
+        drawerAdEnabled = false;
+        drawerAdRequested = false;
         drawerList = null;
         drawerAdapter = null;
         recentAdapter = null;

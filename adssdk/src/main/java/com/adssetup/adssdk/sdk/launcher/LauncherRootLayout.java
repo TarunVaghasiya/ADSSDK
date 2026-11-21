@@ -142,11 +142,11 @@ public class LauncherRootLayout extends FrameLayout {
     }
 
     public void openDrawer(boolean animate) {
-        settle(true, animate, 0f);
+        settle(true, animate);
     }
 
     public void closeDrawer(boolean animate) {
-        settle(false, animate, 0f);
+        settle(false, animate);
     }
 
     @Override
@@ -174,7 +174,7 @@ public class LauncherRootLayout extends FrameLayout {
         }
     }
 
-    private void settle(boolean toOpen, boolean animate, float unusedVelocity) {
+    private void settle(boolean toOpen, boolean animate) {
         if (drawer == null || (toOpen && !drawerEnabled)) return;
         if (animator != null) animator.cancel();
         final boolean changed = open != toOpen;
@@ -291,7 +291,7 @@ public class LauncherRootLayout extends FrameLayout {
                 if (vy < -flingVelocity) toOpen = true;
                 else if (vy > flingVelocity) toOpen = false;
                 else toOpen = progress > 0.5f;
-                settle(toOpen, true, vy);
+                settle(toOpen, true);
                 return true;
             default:
                 return true;

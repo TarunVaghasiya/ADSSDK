@@ -50,7 +50,12 @@ final class RecentApps {
                 String pkg = o.optString("p", "");
                 if (pkg.isEmpty()) continue;
                 boolean dup = false;
-                for (Entry e : out) if (e.pkg.equals(pkg)) dup = true;
+                for (Entry e : out) {
+                    if (e.pkg.equals(pkg)) {
+                        dup = true;
+                        break;
+                    }
+                }
                 if (!dup) out.add(new Entry(pkg, o.optLong("t", 0L)));
             }
         } catch (JSONException e) {

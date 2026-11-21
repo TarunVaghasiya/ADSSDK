@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.adssetup.adssdk.sdk.launcher.LauncherRootLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/home_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <com.adssetup.adssdk.sdk.launcher.PageIndicatorView
+            android:id="@+id/page_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp" />
+
+        <LinearLayout
+            android:id="@+id/dock"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingTop="2dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp">
+
+            <ImageView
+                android:id="@+id/dock_phone"
+                style="@style/DockIcon" />
+
+            <ImageView
+                android:id="@+id/dock_messages"
+                style="@style/DockIcon" />
+
+            <ImageView
+                android:id="@+id/dock_browser"
+                style="@style/DockIcon" />
+
+            <ImageView
+                android:id="@+id/dock_camera"
+                style="@style/DockIcon" />
+
+        </LinearLayout>
+
+        <include layout="@layout/view_bottom_search" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/drawer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#CC000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical"
+        android:visibility="invisible">
+
+        <View
+            android:id="@+id/drawer_handle"
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/bg_drawer_handle"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/bg_drawer_search"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingEnd="8dp"
+            tools:ignore="RtlSymmetry">
+
+            <ImageView
+                android:id="@+id/search_icon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/drawer_search_back"
+                android:padding="12dp"
+                android:src="@drawable/ic_drawer_search" />
+
+            <EditText
+                android:id="@+id/search_input"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@null"
+                android:fontFamily="@font/fig_tree_medium"
+                android:hint="@string/drawer_search_hint"
+                android:imeOptions="actionSearch|flagNoExtractUi"
+                android:importantForAutofill="no"
+                android:inputType="text|textNoSuggestions"
+                android:maxLines="1"
+                android:textColor="@android:color/white"
+                android:textColorHint="#B3FFFFFF"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:id="@+id/search_clear"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/drawer_search_clear"
+                android:padding="8dp"
+                android:src="@drawable/ic_drawer_close"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/search_menu"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/drawer_search_menu"
+                android:padding="8dp"
+                android:src="@drawable/ic_more_vert"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/search_mic"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/search_voice"
+                android:padding="8dp"
+                android:src="@drawable/ic_mic"
+                android:tint="#313131"
+                android:visibility="gone"
+                tools:ignore="UseAppTint" />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/drawer_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
+                android:clipToPadding="true"
+                android:overScrollMode="never"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp" />
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/drawer_pager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
+                android:visibility="gone" />
+
+            <FrameLayout
+                android:id="@+id/recent_layer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="false"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/recent_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="@drawable/bg_recent_card"
+                    android:clickable="true"
+                    android:orientation="vertical"
+                    android:padding="8dp"
+                    tools:ignore="UselessParent">
+
+                    <TextView
+                        android:id="@+id/recent_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="8dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="8dp"
+                        android:text="@string/recent_apps_title"
+                        android:textColor="#CCFFFFFF"
+                        android:textSize="15sp"
+                        tools:ignore="RtlSymmetry" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recent_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:overScrollMode="never" />
+
+                    <TextView
+                        android:id="@+id/recent_empty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="24dp"
+                        android:text="@string/recent_apps_empty"
+                        android:textColor="#B3FFFFFF"
+                        android:textSize="15sp"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <com.adssetup.adssdk.sdk.launcher.PageIndicatorView
+                android:id="@+id/drawer_indicator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/search_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="48dp"
+                android:gravity="center"
+                android:text="@string/search_no_results"
+                android:textColor="#B3FFFFFF"
+                android:textSize="16sp"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/drawer_ad"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_drawer_ad">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/fig_tree_medium"
+                android:gravity="center"
+                android:letterSpacing="0.08"
+                android:text="@string/advertisement"
+                android:textAllCaps="true"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/folder_layer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="20dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/folder_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_folder_panel"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <EditText
+                android:id="@+id/folder_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:gravity="center"
+                android:imeOptions="actionDone"
+                android:importantForAutofill="no"
+                android:inputType="textCapWords|textNoSuggestions"
+                android:maxLength="24"
+                android:maxLines="1"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:textColor="@android:color/white"
+                android:textSize="20sp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/folder_list"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginTop="4dp"
+                android:overScrollMode="never" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/menu_layer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="invisible">
+
+        <LinearLayout
+            android:id="@+id/item_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_item_menu"
+            android:elevation="8dp"
+            android:orientation="vertical"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            tools:ignore="UselessParent">
+
+            <LinearLayout
+                android:id="@+id/menu_shortcuts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone" />
+
+            <View
+                android:id="@+id/menu_shortcut_divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="4dp"
+                android:background="#1F000000"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/menu_actions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Space
+                    android:id="@+id/menu_gap0"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/menu_primary"
+                    style="@style/MenuRow" />
+
+                <Space
+                    android:id="@+id/menu_gap1"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/menu_tertiary"
+                    style="@style/MenuRow"
+                    android:visibility="gone" />
+
+                <Space
+                    android:id="@+id/menu_gap2"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/menu_secondary"
+                    style="@style/MenuRow" />
+
+                <Space
+                    android:id="@+id/menu_gap3"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <View
+                    android:id="@+id/menu_divider"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:visibility="gone" />
+
+                <View
+                    android:id="@+id/menu_divider2"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+</com.adssetup.adssdk.sdk.launcher.LauncherRootLayout>

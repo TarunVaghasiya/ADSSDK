@@ -1,9 +1,14 @@
 package com.adssetup.adssdk;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.adssetup.adssdk.config.AdsConfig;
@@ -16,12 +21,21 @@ import com.adssetup.adssdk.sdk.NativeAdCustomView;
 import com.adssetup.adssdk.sdk.NativeAdPlacement;
 import com.adssetup.adssdk.sdk.NativeFullAdPlacement;
 import com.adssetup.adssdk.sdk.PIPAdPlacement;
+import com.adssetup.adssdk.sdk.launcher.DefaultLauncherHelper;
 
 public class MainActivity extends AppCompatActivity {
+    private TextView tvSetLauncher;
+
+    private final ActivityResultLauncher<Intent> homeRoleRequest = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> onHomeRoleRequestFinished());
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        tvSetLauncher = findViewById(R.id.tvSetLauncher);
+        tvSetLauncher.setOnClickListener(view -> requestDefaultLauncher());
+        refreshLauncherButton();
 
         AdsConfig config = AdsConfigManager.get();
         AdsConfig.MainScreen main = config.getMainScreen();
@@ -71,6 +85,40 @@ public class MainActivity extends AppCompatActivity {
         if (main.isMainPipAdShow()) {
             PIPAdPlacement.loadPIPAd(this, main.getMainPipId());
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshLauncherButton();
+    }
+
+    private void refreshLauncherButton() {
+        tvSetLauncher.setText(DefaultLauncherHelper.isDefaultLauncher(this) ? R.string.btn_change_launcher : R.string.btn_set_launcher);
+    }
+
+    private void requestDefaultLauncher() {
+        Intent roleIntent = DefaultLauncherHelper.isDefaultLauncher(this) ? null : DefaultLauncherHelper.createRoleRequestIntent(this);
+        if (roleIntent != null) {
+            try {
+                homeRoleRequest.launch(roleIntent);
+                return;
+            } catch (ActivityNotFoundException | SecurityException ignored) {
+            }
+        }
+        for (Intent settings : DefaultLauncherHelper.fallbackSettingsIntents()) {
+            try {
+                startActivity(settings);
+                return;
+            } catch (ActivityNotFoundException | SecurityException ignored) {
+            }
+        }
+        Toast.makeText(this, R.string.launcher_unavailable, Toast.LENGTH_SHORT).show();
+    }
+
+    private void onHomeRoleRequestFinished() {
+        refreshLauncherButton();
+        Toast.makeText(this, DefaultLauncherHelper.isDefaultLauncher(this) ? R.string.launcher_set_success : R.string.launcher_not_set, Toast.LENGTH_SHORT).show();
     }
 
     private void openSecond() {

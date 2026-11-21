@@ -5,4 +5,10 @@
     <string name="btn_full_native">FULL NATIVE</string>
     <string name="btn_onload_ad">ONLOAD AD</string>
     <string name="btn_reward_ad">REWARD AD</string>
+
+    <string name="btn_set_launcher">Set Launcher</string>
+    <string name="btn_change_launcher">Change Launcher</string>
+    <string name="launcher_set_success">This app is now your default Home app.</string>
+    <string name="launcher_not_set">This app was not set as the default Home app.</string>
+    <string name="launcher_unavailable">Unable to open the default Home app settings on this device.</string>
 </resources>

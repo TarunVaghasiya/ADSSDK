@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <TextView
+        android:id="@+id/greeting_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/fig_tree_bold"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:shadowColor="#66000000"
+        android:shadowRadius="6"
+        android:textColor="@android:color/white"
+        android:textSize="34sp"
+        app:autoSizeMaxTextSize="34sp"
+        app:autoSizeMinTextSize="22sp"
+        app:autoSizeStepGranularity="1sp"
+        app:autoSizeTextType="uniform" />
+
+    <TextView
+        android:id="@+id/greeting_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:fontFamily="@font/fig_tree_medium"
+        android:shadowColor="#66000000"
+        android:shadowRadius="4"
+        android:textColor="@android:color/white"
+        android:textSize="18sp" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_ad_box">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fontFamily="@font/fig_tree_medium"
+            android:gravity="center"
+            android:letterSpacing="0.08"
+            android:text="@string/advertisement"
+            android:textAllCaps="true"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/GreetingSectionTitle"
+                android:text="@string/recent_apps_title" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="216dp"
+                android:background="@drawable/bg_greeting_box"
+                android:padding="8dp">
+
+                <LinearLayout
+                    android:id="@+id/recent_rows"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:id="@+id/recent_none"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/recent_apps_empty"
+                    android:textColor="#CCFFFFFF"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/GreetingSectionTitle"
+                android:text="@string/greeting_play_game" />
+
+            <FrameLayout
+                android:id="@+id/game_box"
+                android:layout_width="match_parent"
+                android:layout_height="216dp"
+                android:background="@drawable/bg_greeting_box"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="top"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <ImageView
+                            android:id="@+id/game_icon"
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            android:contentDescription="@string/block_blast_name" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/fig_tree_bold"
+                            android:maxLines="3"
+                            android:shadowColor="#66000000"
+                            android:shadowRadius="4"
+                            android:text="@string/block_blast_name"
+                            android:textColor="@android:color/white"
+                            android:textSize="15sp" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:gravity="top"
+                        android:maxLines="5"
+                        android:text="@string/block_blast_desc"
+                        android:textColor="#E6FFFFFF"
+                        android:textSize="13sp"
+                        app:autoSizeMaxTextSize="13sp"
+                        app:autoSizeMinTextSize="9sp"
+                        app:autoSizeStepGranularity="0.5sp"
+                        app:autoSizeTextType="uniform" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="42dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_play_now"
+                        android:fontFamily="@font/fig_tree_bold"
+                        android:gravity="center"
+                        android:text="@string/play_now"
+                        android:textColor="#1F1B16"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/suggested_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/GreetingSectionTitle"
+            android:text="@string/suggested_apps_title" />
+
+        <LinearLayout
+            android:id="@+id/suggested_rows"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_greeting_box"
+            android:orientation="vertical"
+            android:padding="8dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/games_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/GreetingSectionTitle"
+            android:text="@string/more_games_title" />
+
+        <LinearLayout
+            android:id="@+id/games_rows"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_greeting_box"
+            android:orientation="vertical"
+            android:padding="8dp" />
+
+    </LinearLayout>
+
+</merge>

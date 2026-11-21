@@ -1,0 +1,59 @@
+<resources>
+
+    <style name="Base.Theme.LauncherSDK" parent="Theme.Material3.DayNight.NoActionBar" />
+
+    <style name="Theme.LauncherSDK" parent="Base.Theme.LauncherSDK">
+        <item name="android:fontFamily">@font/fig_tree_medium</item>
+        <item name="fontFamily">@font/fig_tree_medium</item>
+    </style>
+
+    <style name="GreetingSectionTitle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">4dp</item>
+        <item name="android:layout_marginBottom">6dp</item>
+        <item name="android:fontFamily">@font/fig_tree_medium</item>
+        <item name="android:shadowColor">#66000000</item>
+        <item name="android:shadowRadius">4</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="MenuRow">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">80dp</item>
+        <item name="android:minHeight">72dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textColor">#1F1B16</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="DockIcon">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">72dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:visibility">invisible</item>
+    </style>
+
+    <style name="Theme.LauncherSDK.Home" parent="Theme.LauncherSDK">
+        <item name="android:windowShowWallpaper">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+</resources>

@@ -1042,6 +1042,16 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
         }
         if (gamesPickedForVisit || homeLayout == null) return;
         gamesPickedForVisit = true;
+        int savedScroll = pendingLastPageScroll();
+        if (savedScroll >= 0) {
+            if (adapter != null && adapter.greetingScroller() instanceof GreetingPageView) {
+                ((GreetingPageView) adapter.greetingScroller()).restoreScroll(savedScroll);
+                refreshGreetingPage();
+            } else {
+                gamesPickedForVisit = false;
+            }
+            return;
+        }
         if (adapter != null && adapter.greetingScroller() instanceof GreetingPageView) {
             ((GreetingPageView) Objects.requireNonNull(adapter.greetingScroller())).scrollToTopNow();
         }
@@ -1088,6 +1098,12 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
         viewModel.setCurrentPage(target);
         indicator.setPosition(target);
         setLastPageChromeHidden(target == adapter.getItemCount() - 1);
+        if (target == adapter.getItemCount() - 1 && pendingLastPageScroll() >= 0) {
+            androidx.core.view.OneShotPreDrawListener.add(pager, () -> {
+                if (pager != null && adapter != null && pager.getCurrentItem() == adapter.getItemCount() - 1)
+                    onEnterLastPage();
+            });
+        }
         updateBackEnabled();
         if (overlays != null) overlays.onLayoutRebuilt();
     }
@@ -1095,7 +1111,8 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
     public void goToHomePage(boolean returningFromApp) {
         if (pendingReturnPage() >= 0) {
             restorePendingPage();
-            clearPendingReturn();
+            handler.removeCallbacks(clearPendingRunnable);
+            handler.postDelayed(clearPendingRunnable, PENDING_GRACE_MS);
             return;
         }
         if (drawerReturnPending()) {
@@ -1421,7 +1438,8 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
     private void rememberLaunchSource() {
         if (!isAdded()) return;
         android.content.SharedPreferences.Editor edit = requireContext().getSharedPreferences(DRAWER_RETURN_PREFS, Context.MODE_PRIVATE).edit().clear();
-        if (rootLayout != null && rootLayout.isOpen() && !noDrawer()) {
+        boolean fromDrawer = rootLayout != null && rootLayout.isOpen() && !noDrawer();
+        if (fromDrawer) {
             edit.putBoolean("from_drawer", true).putLong("at", System.currentTimeMillis());
             edit.putBoolean("search", searchMode).putString("query", searchMode && searchInput != null ? searchInput.getText().toString() : "");
             androidx.recyclerview.widget.RecyclerView.LayoutManager lm = drawerList == null ? null : drawerList.getLayoutManager();
@@ -1433,6 +1451,8 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
             edit.putInt("grid_page", samsungGrid && drawerPager != null ? drawerPager.getCurrentItem() : -1);
         }
         edit.apply();
+        if (fromDrawer) clearPendingReturn();
+        else rememberPageForSystemScreen();
     }
 
     private boolean drawerReturnPending() {
@@ -1483,11 +1503,24 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
     private static final String NAV_PREFS = "launcher_nav_state";
     private static final String NAV_PAGE = "return_page";
     private static final String NAV_AT = "return_at";
+    private static final String NAV_SCROLL = "return_scroll";
+    private static final int LAST_PAGE_MARKER = 10_000;
     private static final long RETURN_WINDOW_MS = 10L * 60L * 1000L;
 
     private void rememberPageForSystemScreen() {
         if (!isAdded()) return;
-        requireContext().getSharedPreferences(NAV_PREFS, Context.MODE_PRIVATE).edit().putInt(NAV_PAGE, pager != null && adapter != null && adapter.appPageCount() > 0 ? pager.getCurrentItem() : viewModel.getCurrentPage()).putLong(NAV_AT, System.currentTimeMillis()).apply();
+        boolean ready = pager != null && adapter != null && adapter.appPageCount() > 0;
+        int page = ready ? pager.getCurrentItem() : viewModel.getCurrentPage();
+        boolean last = ready && page == adapter.getItemCount() - 1;
+        int scroll = 0;
+        if (last && adapter.greetingScroller() instanceof GreetingPageView)
+            scroll = adapter.greetingScroller().getScrollY();
+        requireContext().getSharedPreferences(NAV_PREFS, Context.MODE_PRIVATE).edit().clear().putInt(NAV_PAGE, last ? LAST_PAGE_MARKER : page).putInt(NAV_SCROLL, scroll).putLong(NAV_AT, System.currentTimeMillis()).apply();
+    }
+
+    private int pendingLastPageScroll() {
+        if (pendingReturnPage() < LAST_PAGE_MARKER) return -1;
+        return requireContext().getSharedPreferences(NAV_PREFS, Context.MODE_PRIVATE).getInt(NAV_SCROLL, 0);
     }
 
     private int pendingReturnPage() {

@@ -135,7 +135,8 @@ final class GreetingPageView extends ScrollView {
         int slotWidth = Math.min(Math.round(300 * density), getResources().getDisplayMetrics().widthPixels - Math.round(28 * density));
         if (adopt) {
             // The pager gave this page a new holder: move the ad that is already loaded (or loading) into it.
-            if (shared.getParent() instanceof ViewGroup) ((ViewGroup) shared.getParent()).removeView(shared);
+            if (shared.getParent() instanceof ViewGroup)
+                ((ViewGroup) shared.getParent()).removeView(shared);
             box.addView(shared, shared.getLayoutParams());
             adView = shared;
         } else if (banner) {
@@ -263,6 +264,35 @@ final class GreetingPageView extends ScrollView {
             lp.height = px;
             icon.setLayoutParams(lp);
         }
+    }
+
+    private View.OnLayoutChangeListener scrollRestorer;
+
+    void restoreScroll(int y) {
+        cancelScrollRestore();
+        if (y <= 0) return;
+        scrollTo(0, y);
+        scrollRestorer = (v, l, t, r, b, ol, ot, or, ob) -> {
+            scrollTo(0, y);
+            if (content.getHeight() - getHeight() >= y) {
+                cancelScrollRestore();
+            }
+        };
+        content.addOnLayoutChangeListener(scrollRestorer);
+        postDelayed(this::cancelScrollRestore, 4000);
+    }
+
+    private void cancelScrollRestore() {
+        if (scrollRestorer != null) {
+            content.removeOnLayoutChangeListener(scrollRestorer);
+            scrollRestorer = null;
+        }
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(android.view.MotionEvent ev) {
+        if (ev.getActionMasked() == android.view.MotionEvent.ACTION_DOWN) cancelScrollRestore();
+        return super.onInterceptTouchEvent(ev);
     }
 
     void scrollToTopNow() {

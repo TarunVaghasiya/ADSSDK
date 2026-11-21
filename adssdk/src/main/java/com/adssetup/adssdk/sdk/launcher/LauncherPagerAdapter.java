@@ -71,6 +71,7 @@ public class LauncherPagerAdapter extends RecyclerView.Adapter<RecyclerView.View
     @Nullable
     private String dragMergeKey;
     @Nullable
+    private static final Object GREETING_REBIND = new Object();
     private RecyclerView attachedRv;
     private List<AppInfo> greetingRecent = Collections.emptyList();
     @Nullable
@@ -132,7 +133,7 @@ public class LauncherPagerAdapter extends RecyclerView.Adapter<RecyclerView.View
             }
         }, false);
         diff.dispatchUpdatesTo(this);
-        if (geometryChanged) notifyItemChanged(newPages.size());
+        if (geometryChanged) notifyItemChanged(newPages.size(), GREETING_REBIND);
         this.animate = false;
     }
 
@@ -207,7 +208,15 @@ public class LauncherPagerAdapter extends RecyclerView.Adapter<RecyclerView.View
         greetingGame = game;
         greetingClick = click;
         greetingBoundOnce = true;
-        if (!same) notifyItemChanged(pages.size());
+        if (same) return;
+        // Never replace the Last Page holder for a data change: a notifyItemChanged without a payload makes RecyclerView
+        // swap the page between two view instances, and the loaded ad belongs to only one of them.
+        View live = greetingScroller();
+        if (live instanceof GreetingPageView && greetingClick != null) {
+            ((GreetingPageView) live).bind(greetingRecent, greetingGame, greetingSuggested, greetingGames, greetingClick);
+        } else {
+            notifyItemChanged(pages.size(), GREETING_REBIND);
+        }
     }
 
     private static boolean sameApps(List<AppInfo> a, List<AppInfo> b) {

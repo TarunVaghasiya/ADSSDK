@@ -32,10 +32,12 @@
   },
   "LauncherScreen": {
     "Launcher_Drawer_Ad_Show": true,
+    "Launcher_Drawer_Ad_Show_Per_Day": 2880,
     "Launcher_Drawer_Ad_Type": "native",
     "Launcher_Drawer_Banner_Id": "ca-app-pub-3940256099942544/9214589741",
     "Launcher_Drawer_Native_Id": "ca-app-pub-3940256099942544/2247696110",
     "Launcher_Last_Page_Ad_Show": true,
+    "Launcher_Last_Ad_Show_Per_Day": 2880,
     "Launcher_Last_Page_Ad_Type": "native",
     "Launcher_Last_Page_Banner_Id": "ca-app-pub-3940256099942544/9214589741",
     "Launcher_Last_Page_Native_Id": "ca-app-pub-3940256099942544/2247696110"

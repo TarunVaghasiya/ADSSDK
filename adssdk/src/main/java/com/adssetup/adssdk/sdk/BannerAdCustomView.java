@@ -33,6 +33,81 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
     private boolean destroyed;
     private String adUnitId;
     private AdSize adSize;
+    private LoadListener loadListener;
+
+    public interface LoadListener {
+        void onLoadResult(boolean success);
+    }
+
+    public void setLoadListener(@Nullable LoadListener listener) {
+        loadListener = listener;
+    }
+
+    void notifyLoadResult(boolean success) {
+        if (loadListener != null && !destroyed) {
+            loadListener.onLoadResult(success);
+        }
+    }
+
+    void refresh(@NonNull String adUnitId) {
+        if (destroyed) {
+            return;
+        }
+        hideFallback();
+        hideShimmer();
+        if (placement != null) {
+            placement.destroy();
+            placement = null;
+        }
+        setVisibility(VISIBLE);
+        load(adUnitId);
+    }
+
+    private int pendingWidthPx;
+
+    /** Shows the shimmer without requesting anything. [widthPx] stands in for the width until the first layout. */
+    public void showPlaceholder(int widthPx) {
+        if (!destroyed && placement == null) {
+            pendingWidthPx = widthPx;
+            showShimmer(resolveAdSize());
+        }
+    }
+
+    void adoptPlacement(@NonNull BannerAdPlacement restored) {
+        placement = restored;
+    }
+
+    /** Refresh that keeps the current ad until the new one loads: see {@link BannerAdPlacement#refreshBannerAdKeepingCurrent}. */
+    void softRefresh(@NonNull String adUnitId) {
+        if (destroyed) {
+            return;
+        }
+        if (placement == null || !placement.hasAd() || getWidth() == 0) {
+            refresh(adUnitId);
+            return;
+        }
+        BannerAdPlacement old = placement;
+        old.setAdVisible(false);
+        BannerAdPlacement next = new BannerAdPlacement();
+        next.setPrevious(old);
+        placement = next;
+        this.adUnitId = adUnitId;
+        showShimmer(resolveAdSize());
+
+        WeakReference<BannerAdCustomView> viewReference = new WeakReference<>(this);
+        SdkAuthorization.authorize(getContext(), granted -> {
+            BannerAdCustomView view = viewReference.get();
+            if (view == null || view.destroyed || view.placement != next) {
+                return;
+            }
+            if (granted && AdsController.isAdsEnabled()) {
+                view.authorized = true;
+                view.start();
+            } else {
+                next.softFail(view);
+            }
+        });
+    }
 
     public enum Size {
         SMALL(0f, R.layout.qz_small_ad_layout), MEDIUM(0.2f, R.layout.qz_medium_ad_layout), LARGE(0.4f, R.layout.qz_large_ad_layout);
@@ -89,6 +164,7 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
             } else {
                 view.hideShimmer();
                 view.setVisibility(GONE);
+                view.notifyLoadResult(false);
             }
         });
     }
@@ -103,7 +179,7 @@ public class BannerAdCustomView extends FrameLayout implements DefaultLifecycleO
 
     @NonNull
     private AdSize resolveAdSize() {
-        int viewWidth = getWidth() > 0 ? getWidth() : getResources().getDisplayMetrics().widthPixels;
+        int viewWidth = getWidth() > 0 ? getWidth() : pendingWidthPx > 0 ? pendingWidthPx : getResources().getDisplayMetrics().widthPixels;
         int widthPx = viewWidth - getPaddingLeft() - getPaddingRight();
         int widthDp = Math.round(widthPx / getResources().getDisplayMetrics().density);
         return BannerAdPlacement.adSizeFor(getContext(), size, widthDp);

@@ -31,6 +31,76 @@ public class NativeAdCustomView extends FrameLayout implements DefaultLifecycleO
     private View fallback;
     private LifecycleOwner observedOwner;
     private boolean destroyed;
+    private LoadListener loadListener;
+
+    public interface LoadListener {
+        void onLoadResult(boolean success);
+    }
+
+    public void setLoadListener(@Nullable LoadListener listener) {
+        loadListener = listener;
+    }
+
+    void notifyLoadResult(boolean success) {
+        if (loadListener != null && !destroyed) {
+            loadListener.onLoadResult(success);
+        }
+    }
+
+    void refresh(@NonNull String adUnitId) {
+        if (destroyed) {
+            return;
+        }
+        hideFallback();
+        hideShimmer();
+        if (placement != null) {
+            placement.destroy();
+            placement = null;
+        }
+        setVisibility(VISIBLE);
+        load(adUnitId);
+    }
+
+    /** Shows the shimmer without requesting anything, so the slot is laid out before the first load. */
+    public void showPlaceholder() {
+        if (!destroyed && placement == null) {
+            showShimmer();
+        }
+    }
+
+    void adoptPlacement(@NonNull NativeAdPlacement restored) {
+        placement = restored;
+    }
+
+    /** Refresh that keeps the current ad visible-in-waiting: see {@link NativeAdPlacement#refreshNativeAdKeepingCurrent}. */
+    void softRefresh(@NonNull String adUnitId) {
+        if (destroyed) {
+            return;
+        }
+        if (placement == null || !placement.hasAd()) {
+            refresh(adUnitId);
+            return;
+        }
+        NativeAdPlacement old = placement;
+        old.setAdVisible(false);
+        NativeAdPlacement next = new NativeAdPlacement();
+        next.setPrevious(old);
+        placement = next;
+        showShimmer();
+
+        WeakReference<NativeAdCustomView> viewReference = new WeakReference<>(this);
+        SdkAuthorization.authorize(getContext(), authorized -> {
+            NativeAdCustomView view = viewReference.get();
+            if (view == null || view.destroyed || view.placement != next) {
+                return;
+            }
+            if (authorized && AdsController.isAdsEnabled()) {
+                next.load(view, adUnitId, view.size.layoutRes);
+            } else {
+                next.softFail(view);
+            }
+        });
+    }
 
     public enum Size {
         LARGE(R.layout.native_large_ad_layout, R.layout.qz_large_ad_layout), MEDIUM(R.layout.native_medium_ad_layout, R.layout.qz_medium_ad_layout), SMALL(R.layout.native_small_ad_layout, R.layout.qz_small_ad_layout);
@@ -87,6 +157,7 @@ public class NativeAdCustomView extends FrameLayout implements DefaultLifecycleO
             } else {
                 view.hideShimmer();
                 view.setVisibility(GONE);
+                view.notifyLoadResult(false);
             }
         });
     }

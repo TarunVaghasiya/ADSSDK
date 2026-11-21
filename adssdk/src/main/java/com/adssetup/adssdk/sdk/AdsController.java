@@ -51,15 +51,26 @@ public final class AdsController {
     private static volatile String launcherDrawerAdType = "";
     private static volatile String launcherDrawerBannerId = "";
     private static volatile String launcherDrawerNativeId = "";
+    private static volatile int launcherDrawerAdShowPerDay;
+    private static volatile int launcherLastPageAdShowPerDay;
 
     private AdsController() {
     }
 
-    public static void setLauncherDrawerAd(boolean show, @Nullable String type, @Nullable String bannerId, @Nullable String nativeId) {
+    public static void setLauncherDrawerAd(boolean show, @Nullable String type, @Nullable String bannerId, @Nullable String nativeId, int showPerDay) {
         launcherDrawerAdShow = show;
         launcherDrawerAdType = type == null ? "" : type;
         launcherDrawerBannerId = bannerId == null ? "" : bannerId;
         launcherDrawerNativeId = nativeId == null ? "" : nativeId;
+        launcherDrawerAdShowPerDay = Math.max(0, showPerDay);
+    }
+
+    public static int getLauncherDrawerAdShowPerDay() {
+        return launcherDrawerAdShowPerDay;
+    }
+
+    public static int getLauncherLastPageAdShowPerDay() {
+        return launcherLastPageAdShowPerDay;
     }
 
     public static boolean isLauncherDrawerAdShow() {
@@ -81,11 +92,12 @@ public final class AdsController {
         return launcherDrawerNativeId;
     }
 
-    public static void setLauncherLastPageAd(boolean show, @Nullable String type, @Nullable String bannerId, @Nullable String nativeId) {
+    public static void setLauncherLastPageAd(boolean show, @Nullable String type, @Nullable String bannerId, @Nullable String nativeId, int showPerDay) {
         launcherLastPageAdShow = show;
         launcherLastPageAdType = type == null ? "" : type;
         launcherLastPageBannerId = bannerId == null ? "" : bannerId;
         launcherLastPageNativeId = nativeId == null ? "" : nativeId;
+        launcherLastPageAdShowPerDay = Math.max(0, showPerDay);
     }
 
     public static boolean isLauncherLastPageAdShow() {

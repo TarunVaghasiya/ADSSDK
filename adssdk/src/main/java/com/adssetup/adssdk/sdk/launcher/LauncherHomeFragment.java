@@ -74,12 +74,14 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
     private int imeBottom;
     private View drawerAdView;
     private boolean drawerAdEnabled;
-    private boolean drawerAdRequested;
+    private boolean drawerAdShown;
+    private LauncherAdRefresh drawerRefresh;
 
     private void setUpDrawerAd() {
         drawerAdView = null;
         drawerAdEnabled = false;
-        drawerAdRequested = false;
+        drawerAdShown = false;
+        drawerRefresh = null;
         View container = drawerView.findViewById(R.id.drawer_ad);
         String type = AdsController.getLauncherDrawerAdType();
         boolean banner = "banner".equalsIgnoreCase(type);
@@ -94,24 +96,32 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
             styleDrawerNative((NativeAdCustomView) drawerAdView);
             container.setMinimumHeight(0);
         }
-        drawerAdView.setVisibility(View.VISIBLE);
+        LauncherAdRefresh refresh = new LauncherAdRefresh(requireContext(), "launcher_drawer_ad", AdsController.isQuizPriority() ? 0 : AdsController.getLauncherDrawerAdShowPerDay(), nativeAd ? LauncherAdRefresh.NATIVE_MAX_AGE_MS : 0L);
+        drawerRefresh = refresh;
+        if (drawerAdView instanceof BannerAdCustomView) {
+            ((BannerAdCustomView) drawerAdView).setLoadListener(refresh::onResult);
+        } else {
+            ((NativeAdCustomView) drawerAdView).setLoadListener(refresh::onResult);
+        }
         drawerAdEnabled = true;
-        container.setVisibility(View.VISIBLE);
         container.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
-            if (drawerAdEnabled && drawerAdView != null && drawerAdView.getVisibility() == View.GONE) {
-                drawerAdEnabled = false;
+            if (drawerAdShown && drawerAdView != null && drawerAdView.getVisibility() == View.GONE) {
+                drawerAdShown = false;
                 v.post(() -> v.setVisibility(View.GONE));
             }
         });
     }
 
-    private void loadDrawerAdOnce() {
-        if (!drawerAdEnabled || drawerAdRequested || drawerAdView == null) return;
-        drawerAdRequested = true;
+    private void onDrawerAdVisible() {
+        if (!drawerAdEnabled || drawerAdView == null || drawerRefresh == null) return;
+        if (drawerRefresh.onVisible() == LauncherAdRefresh.Action.NONE) return;
+        drawerAdShown = true;
+        drawerAdView.setVisibility(View.VISIBLE);
+        drawerView.findViewById(R.id.drawer_ad).setVisibility(View.VISIBLE);
         if (drawerAdView instanceof BannerAdCustomView) {
-            BannerAdPlacement.loadBannerAd(requireActivity(), AdsController.getLauncherDrawerBannerId(), (BannerAdCustomView) drawerAdView);
+            BannerAdPlacement.refreshBannerAd(requireActivity(), AdsController.getLauncherDrawerBannerId(), (BannerAdCustomView) drawerAdView);
         } else {
-            NativeAdPlacement.loadNativeAd(requireActivity(), AdsController.getLauncherDrawerNativeId(), (NativeAdCustomView) drawerAdView);
+            NativeAdPlacement.refreshNativeAd(requireActivity(), AdsController.getLauncherDrawerNativeId(), (NativeAdCustomView) drawerAdView);
         }
     }
 
@@ -293,7 +303,7 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
             View drawerAd = drawerView.findViewById(R.id.drawer_ad);
             ViewGroup.MarginLayoutParams adLp = (ViewGroup.MarginLayoutParams) drawerAd.getLayoutParams();
             if (motorolaSearch) {
-                int adVis = imeBottom > 0 || !drawerAdEnabled ? View.GONE : View.VISIBLE;
+                int adVis = imeBottom > 0 || !drawerAdShown ? View.GONE : View.VISIBLE;
                 if (drawerAd.getVisibility() != adVis) drawerAd.setVisibility(adVis);
             }
             int adBottom = motorolaSearch ? 0 : bars.bottom;
@@ -422,7 +432,7 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
             setMotorolaKeyboardResize(open);
             if (open) {
                 refreshRecentHeader();
-                loadDrawerAdOnce();
+                onDrawerAdVisible();
             }
             if (!open && searchMode) exitSearch();
             updateBackEnabled();
@@ -955,9 +965,18 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
         dock.setVisibility(vis);
     }
 
+    private final Runnable loadLastPageAd = () -> {
+        if (!isAdded() || adapter == null || pager == null || pager.getCurrentItem() != adapter.getItemCount() - 1) return;
+        View page = adapter.greetingScroller();
+        if (page instanceof GreetingPageView && page.isAttachedToWindow()) ((GreetingPageView) page).loadAd(requireActivity());
+    };
+
     private void onEnterLastPage() {
-        if (adapter != null && adapter.greetingScroller() instanceof GreetingPageView) {
-            ((GreetingPageView) adapter.greetingScroller()).loadAd(requireActivity());
+        // Debounced: the page reports entering on every scroll frame and its holder may be replaced meanwhile, so the ad
+        // is requested once the pager has settled on the Last Page, by the view that is actually showing.
+        if (pager != null) {
+            pager.removeCallbacks(loadLastPageAd);
+            pager.postDelayed(loadLastPageAd, 200);
         }
         if (gamesPickedForVisit || homeLayout == null) return;
         gamesPickedForVisit = true;
@@ -1067,7 +1086,8 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
         drawerView = null;
         drawerAdView = null;
         drawerAdEnabled = false;
-        drawerAdRequested = false;
+        drawerAdShown = false;
+        drawerRefresh = null;
         drawerList = null;
         drawerAdapter = null;
         recentAdapter = null;

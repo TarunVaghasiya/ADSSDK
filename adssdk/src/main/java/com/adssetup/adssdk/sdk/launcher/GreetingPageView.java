@@ -3,6 +3,7 @@ package com.adssetup.adssdk.sdk.launcher;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
@@ -15,6 +16,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 
 import com.adssetup.adssdk.sdk.AdsController;
@@ -42,7 +44,11 @@ final class GreetingPageView extends ScrollView {
     private final LinearLayout suggestedRows;
     private final LinearLayout gamesRows;
     private boolean receiverRegistered;
-    private boolean adRequested;
+    private boolean adSetUp;
+    private boolean adShown;
+    private String adUnitIdInUse = "";
+    private View adView;
+    private LauncherAdRefresh adRefresh;
     private Consumer<AppInfo> onApp;
     private AppInfo game;
 
@@ -86,40 +92,99 @@ final class GreetingPageView extends ScrollView {
             if (game != null && onApp != null) onApp.accept(game);
         });
         refresh();
+        Activity host = activityOf(context);
+        if (host != null) setUpAd(host, true);
     }
 
-    void loadAd(@NonNull Activity activity) {
-        if (adRequested) return;
+    @Nullable
+    private static Activity activityOf(@NonNull Context context) {
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) return (Activity) context;
+            context = ((ContextWrapper) context).getBaseContext();
+        }
+        return null;
+    }
+
+    /**
+     * Builds the ad slot before the page is first drawn, so it is laid out (with the shimmer inside) from the first
+     * frame instead of appearing when the pager settles on the page. [deferred] is true when called at construction:
+     * an ad that already exists is then only adopted later, from {@link #loadAd}, so a page that is merely being
+     * created cannot take it from the page on screen.
+     */
+    private void setUpAd(@NonNull Activity activity, boolean deferred) {
+        if (adSetUp) return;
         View container = findViewById(R.id.greeting_ad);
         String type = AdsController.getLauncherLastPageAdType();
         boolean banner = "banner".equalsIgnoreCase(type);
         boolean nativeAd = "native".equalsIgnoreCase(type);
         String adUnitId = banner ? AdsController.getLauncherLastPageBannerId() : nativeAd ? AdsController.getLauncherLastPageNativeId() : "";
         if (!AdsController.isAdsEnabled() || !AdsController.isLauncherLastPageAdShow() || adUnitId.isEmpty()) {
-            adRequested = true;
+            adSetUp = true;
             container.setVisibility(GONE);
             return;
         }
-        if (container.getWidth() == 0) return;
-        adRequested = true;
-        View adView;
-        if (banner) {
+        LauncherAdRefresh refresh = LauncherAdRefresh.shared(getContext(), "launcher_last_page_ad", AdsController.isQuizPriority() ? 0 : AdsController.getLauncherLastPageAdShowPerDay(), nativeAd ? LauncherAdRefresh.NATIVE_MAX_AGE_MS : 0L);
+        View shared = refresh.sharedAdView(activity);
+        boolean adopt = shared != null && (shared instanceof BannerAdCustomView) == banner;
+        if (adopt && deferred) return;
+        adSetUp = true;
+        adUnitIdInUse = adUnitId;
+        adRefresh = refresh;
+        ViewGroup box = (ViewGroup) container;
+        float density = getResources().getDisplayMetrics().density;
+        int slotWidth = Math.min(Math.round(300 * density), getResources().getDisplayMetrics().widthPixels - Math.round(28 * density));
+        if (adopt) {
+            // The pager gave this page a new holder: move the ad that is already loaded (or loading) into it.
+            if (shared.getParent() instanceof ViewGroup) ((ViewGroup) shared.getParent()).removeView(shared);
+            box.addView(shared, shared.getLayoutParams());
+            adView = shared;
+        } else if (banner) {
             adView = findViewById(R.id.greeting_banner_ad);
+            ViewGroup.LayoutParams lp = adView.getLayoutParams();
+            lp.width = slotWidth;
+            adView.setLayoutParams(lp);
+            refresh.shareAdView(adView, activity);
         } else {
-            adView = LayoutInflater.from(lightContext(getContext())).inflate(R.layout.view_greeting_native_ad, (ViewGroup) container, false);
-            ((ViewGroup) container).addView(adView);
+            adView = LayoutInflater.from(lightContext(getContext())).inflate(R.layout.view_greeting_native_ad, box, false);
+            box.addView(adView);
+            refresh.shareAdView(adView, activity);
+        }
+        if (banner) ((BannerAdCustomView) adView).setLoadListener(refresh::onResult);
+        else ((NativeAdCustomView) adView).setLoadListener(refresh::onResult);
+
+        boolean show = adopt ? adView.getVisibility() == VISIBLE : refresh.wouldRequest(activity);
+        adView.setVisibility(show ? VISIBLE : GONE);
+        container.setVisibility(show ? VISIBLE : GONE);
+        adShown = show;
+        if (show && !adopt) {
+            if (banner) ((BannerAdCustomView) adView).showPlaceholder(slotWidth);
+            else ((NativeAdCustomView) adView).showPlaceholder();
         }
         container.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
-            if (adView.getVisibility() == GONE && v.getVisibility() != GONE) v.post(() -> v.setVisibility(GONE));
+            if (adShown && adView.getVisibility() == GONE) {
+                adShown = false;
+                v.post(() -> v.setVisibility(GONE));
+            }
         });
+    }
+
+    void loadAd(@NonNull Activity activity) {
+        View container = findViewById(R.id.greeting_ad);
+        setUpAd(activity, false);
+        if (adRefresh == null || adView == null) return;
+        if (adRefresh.onVisible(activity) == LauncherAdRefresh.Action.NONE) {
+            adShown = adView.getVisibility() == VISIBLE;
+            container.setVisibility(adShown ? VISIBLE : GONE);
+            return;
+        }
+        adShown = true;
+        container.setVisibility(VISIBLE);
         adView.setVisibility(VISIBLE);
-        if (banner) {
-            ViewGroup.LayoutParams lp = adView.getLayoutParams();
-            lp.width = Math.min(container.getWidth(), Math.round(300 * getResources().getDisplayMetrics().density));
-            adView.setLayoutParams(lp);
-            adView.post(() -> BannerAdPlacement.loadBannerAd(activity, adUnitId, (BannerAdCustomView) adView));
+        final String adUnitId = adUnitIdInUse;
+        if (adView instanceof BannerAdCustomView) {
+            adView.post(() -> BannerAdPlacement.refreshBannerAdKeepingCurrent(activity, adUnitId, (BannerAdCustomView) adView));
         } else {
-            NativeAdPlacement.loadNativeAd(activity, adUnitId, (NativeAdCustomView) adView);
+            NativeAdPlacement.refreshNativeAdKeepingCurrent(activity, adUnitId, (NativeAdCustomView) adView);
         }
     }
 

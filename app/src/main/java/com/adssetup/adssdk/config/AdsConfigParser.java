@@ -84,6 +84,8 @@ final class AdsConfigParser {
             launcherScreen.setLauncherDrawerAdType(string(launcher, "Launcher_Drawer_Ad_Type", launcherScreen.getLauncherDrawerAdType()));
             launcherScreen.setLauncherDrawerBannerId(string(launcher, "Launcher_Drawer_Banner_Id", launcherScreen.getLauncherDrawerBannerId()));
             launcherScreen.setLauncherDrawerNativeId(string(launcher, "Launcher_Drawer_Native_Id", launcherScreen.getLauncherDrawerNativeId()));
+            launcherScreen.setLauncherDrawerAdShowPerDay(launcher.optInt("Launcher_Drawer_Ad_Show_Per_Day", launcherScreen.getLauncherDrawerAdShowPerDay()));
+            launcherScreen.setLauncherLastAdShowPerDay(launcher.optInt("Launcher_Last_Ad_Show_Per_Day", launcherScreen.getLauncherLastAdShowPerDay()));
             launcherScreen.setLauncherLastPageAdShow(launcher.optBoolean("Launcher_Last_Page_Ad_Show", launcherScreen.isLauncherLastPageAdShow()));
             launcherScreen.setLauncherLastPageAdType(string(launcher, "Launcher_Last_Page_Ad_Type", launcherScreen.getLauncherLastPageAdType()));
             launcherScreen.setLauncherLastPageBannerId(string(launcher, "Launcher_Last_Page_Banner_Id", launcherScreen.getLauncherLastPageBannerId()));

@@ -29,6 +29,8 @@ public class NativeAdPlacement {
     private NativeAd nativeAd;
     private boolean requested;
     private boolean destroyed;
+    private NativeAdPlacement previous;
+    private View adViewInstance;
 
     public static void loadNativeAd(@NonNull Activity activity, @NonNull String adUnitId, @NonNull NativeAdCustomView adView) {
         if (activity.isFinishing() || activity.isDestroyed()) {
@@ -45,7 +47,86 @@ public class NativeAdPlacement {
         adView.load(adUnitId);
     }
 
+    public static void refreshNativeAd(@NonNull Activity activity, @NonNull String adUnitId, @NonNull NativeAdCustomView adView) {
+        if (activity.isFinishing() || activity.isDestroyed()) {
+            return;
+        }
+        if (!AdsController.isAdsEnabled()) {
+            adView.setVisibility(View.GONE);
+            return;
+        }
+        if (AdsController.isQuizPriority()) {
+            adView.showQuiz();
+            return;
+        }
+        adView.refresh(adUnitId);
+    }
+
+    /**
+     * Like {@link #refreshNativeAd} but keeps the ad that is on screen until the new one has loaded. The current ad is
+     * hidden behind the shimmer meanwhile, replaced only on success and brought back if the request fails.
+     */
+    public static void refreshNativeAdKeepingCurrent(@NonNull Activity activity, @NonNull String adUnitId, @NonNull NativeAdCustomView adView) {
+        if (activity.isFinishing() || activity.isDestroyed()) {
+            return;
+        }
+        if (!AdsController.isAdsEnabled()) {
+            adView.setVisibility(View.GONE);
+            return;
+        }
+        if (AdsController.isQuizPriority()) {
+            adView.showQuiz();
+            return;
+        }
+        adView.softRefresh(adUnitId);
+    }
+
+    boolean hasAd() {
+        return !destroyed && nativeAd != null && adViewInstance != null;
+    }
+
+    void setAdVisible(boolean visible) {
+        if (adViewInstance != null) {
+            adViewInstance.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        }
+    }
+
+    void setPrevious(@Nullable NativeAdPlacement placement) {
+        previous = placement;
+    }
+
+    /** Drops this placement's own ad only, leaving the container's other children alone. */
+    private void release() {
+        destroyed = true;
+        if (adViewInstance != null && adViewInstance.getParent() instanceof ViewGroup) {
+            ((ViewGroup) adViewInstance.getParent()).removeView(adViewInstance);
+        }
+        adViewInstance = null;
+        if (nativeAd != null) {
+            nativeAd.destroy();
+            nativeAd = null;
+        }
+        containerReference = null;
+    }
+
+    /** The refresh did not produce a new ad: stop the shimmer and bring the previous ad back. */
+    void softFail(@NonNull NativeAdCustomView container) {
+        NativeAdPlacement old = previous;
+        previous = null;
+        destroyed = true;
+        container.hideShimmer();
+        if (old != null) {
+            container.adoptPlacement(old);
+            old.setAdVisible(true);
+        }
+        container.notifyLoadResult(false);
+    }
+
     void load(@NonNull NativeAdCustomView container, @NonNull String adUnitId, @LayoutRes int layoutRes) {
+        if (previous != null && !googleAllowed()) {
+            softFail(container);
+            return;
+        }
         if (destroyed || requested || !googleAllowed()) {
             return;
         }
@@ -65,7 +146,12 @@ public class NativeAdPlacement {
                 MainThread.run(() -> {
                     NativeAdCustomView container = host();
                     if (container != null) {
+                        if (previous != null) {
+                            softFail(container);
+                            return;
+                        }
                         container.showFallback();
+                        container.notifyLoadResult(false);
                     }
                 });
             }
@@ -80,17 +166,34 @@ public class NativeAdPlacement {
         }
         if (!googleAllowed()) {
             ad.destroy();
+            if (previous != null) {
+                previous.release();
+                previous = null;
+            }
             container.showQuiz();
+            container.notifyLoadResult(true);
             return;
         }
         try {
+            NativeAdView inflated = inflateAd(container, ad, layoutRes);
             container.hideShimmer();
             container.hideFallback();
-            container.addView(inflateAd(container, ad, layoutRes));
+            container.addView(inflated);
+            adViewInstance = inflated;
             nativeAd = ad;
+            if (previous != null) {
+                previous.release();
+                previous = null;
+            }
+            container.notifyLoadResult(true);
         } catch (RuntimeException e) {
             ad.destroy();
+            if (previous != null) {
+                softFail(container);
+                return;
+            }
             container.showFallback();
+            container.notifyLoadResult(false);
         }
     }
 
@@ -149,6 +252,10 @@ public class NativeAdPlacement {
 
     public void destroy() {
         destroyed = true;
+        if (previous != null) {
+            previous.destroy();
+            previous = null;
+        }
         if (containerReference != null) {
             NativeAdCustomView container = containerReference.get();
             if (container != null) {

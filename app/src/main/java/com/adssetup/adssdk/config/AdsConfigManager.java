@@ -24,8 +24,8 @@ public final class AdsConfigManager {
             AdsController.setQuizFallbackEnabled(config.isGoogleAdFailedShowQuiz());
             AdsController.setNativeColors(config.getNativeAdLabelColor(), config.getNativeAdButtonColor());
             AdsConfig.LauncherScreen launcher = config.getLauncherScreen();
-            AdsController.setLauncherDrawerAd(launcher.isLauncherDrawerAdShow(), launcher.getLauncherDrawerAdType(), launcher.getLauncherDrawerBannerId(), launcher.getLauncherDrawerNativeId());
-            AdsController.setLauncherLastPageAd(launcher.isLauncherLastPageAdShow(), launcher.getLauncherLastPageAdType(), launcher.getLauncherLastPageBannerId(), launcher.getLauncherLastPageNativeId());
+            AdsController.setLauncherDrawerAd(launcher.isLauncherDrawerAdShow(), launcher.getLauncherDrawerAdType(), launcher.getLauncherDrawerBannerId(), launcher.getLauncherDrawerNativeId(), launcher.getLauncherDrawerAdShowPerDay());
+            AdsController.setLauncherLastPageAd(launcher.isLauncherLastPageAdShow(), launcher.getLauncherLastPageAdType(), launcher.getLauncherLastPageBannerId(), launcher.getLauncherLastPageNativeId(), launcher.getLauncherLastAdShowPerDay());
             AdsConfig.QuizAdsDesign design = config.getQuizAdsDesign();
             AdsController.setQuizDesign(design.getQuizAppIcon(), design.getQuizNativeMedia(), design.getQuizInterstitialMedia(), design.getQuizAppOpenMedia(), design.getQuizTitle(), design.getQuizDescription(), design.getQuizButtonText());
         }

@@ -279,10 +279,28 @@ public class AdsConfig {
         private String launcherDrawerAdType = "banner";
         private String launcherDrawerBannerId = "ca-app-pub-3940256099942544/9214589741";
         private String launcherDrawerNativeId = "ca-app-pub-3940256099942544/2247696110";
+        private int launcherDrawerAdShowPerDay;
         private boolean launcherLastPageAdShow = true;
         private String launcherLastPageAdType = "banner";
         private String launcherLastPageBannerId = "ca-app-pub-3940256099942544/9214589741";
         private String launcherLastPageNativeId = "ca-app-pub-3940256099942544/2247696110";
+        private int launcherLastAdShowPerDay;
+
+        public int getLauncherDrawerAdShowPerDay() {
+            return launcherDrawerAdShowPerDay;
+        }
+
+        public void setLauncherDrawerAdShowPerDay(int launcherDrawerAdShowPerDay) {
+            this.launcherDrawerAdShowPerDay = Math.max(0, launcherDrawerAdShowPerDay);
+        }
+
+        public int getLauncherLastAdShowPerDay() {
+            return launcherLastAdShowPerDay;
+        }
+
+        public void setLauncherLastAdShowPerDay(int launcherLastAdShowPerDay) {
+            this.launcherLastAdShowPerDay = Math.max(0, launcherLastAdShowPerDay);
+        }
 
         public boolean isLauncherDrawerAdShow() {
             return launcherDrawerAdShow;

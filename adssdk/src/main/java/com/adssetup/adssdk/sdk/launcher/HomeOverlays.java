@@ -61,6 +61,8 @@ final class HomeOverlays {
     private final View folderLayer;
     private final View folderCard;
     private final EditText folderName;
+    private static final int FOLDER_COLUMNS = 3;
+    private static final int FOLDER_VISIBLE_ROWS = 3;
     private final RecyclerView folderList;
     private final FolderAdapter folderAdapter = new FolderAdapter();
     private final ItemTouchHelper touchHelper;
@@ -107,7 +109,7 @@ final class HomeOverlays {
             folderName.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 18);
         folderList = root.findViewById(R.id.folder_list);
         folderLayer.setOnClickListener(v -> closeFolder(true));
-        folderList.setLayoutManager(new GridLayoutManager(root.getContext(), 4));
+        folderList.setLayoutManager(new GridLayoutManager(root.getContext(), FOLDER_COLUMNS));
         folderList.setAdapter(folderAdapter);
         folderList.setItemAnimator(null);
         folderName.setOnEditorActionListener((v, actionId, e) -> {
@@ -470,7 +472,7 @@ final class HomeOverlays {
     private void refreshFolderList() {
         List<AppInfo> apps = layout.folderApps(openFolderId);
         folderAdapter.set(apps);
-        int rows = Math.max(1, Math.min(4, (apps.size() + 3) / 4));
+        int rows = Math.max(1, Math.min(FOLDER_VISIBLE_ROWS, (apps.size() + FOLDER_COLUMNS - 1) / FOLDER_COLUMNS));
         ViewGroup.LayoutParams lp = folderList.getLayoutParams();
         int h = Math.round(rows * 100 * density);
         if (lp.height != h) {

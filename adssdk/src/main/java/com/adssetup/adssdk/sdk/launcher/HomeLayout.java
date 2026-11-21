@@ -97,7 +97,7 @@ final class HomeLayout {
         appContext = app;
         allAppsOnHome = DeviceLayout.mode(app) == DeviceLayout.Mode.ALL_APPS_ON_HOME;
         iconPx = DeviceLayout.iconPx(app);
-        AppRepository.initMask(app);
+        AppRepository.initMask();
         blockBlast = new AppInfo(BLOCK_BLAST_COMPONENT, app.getString(R.string.block_blast_name), AppRepository.toBitmap(androidx.core.content.res.ResourcesCompat.getDrawable(app.getResources(), R.drawable.ic_block_blast, null), iconPx));
         for (int i = 0; i < QuizGames.ALL.length; i++) {
             QuizGames.QuizGameItem g = QuizGames.ALL[i];
@@ -723,7 +723,7 @@ final class HomeLayout {
         return dockEligible(dragged) && (target == null || dockEligible(target));
     }
 
-    private boolean slotDockEligible(Slot s) {
+    private boolean slotDockEligible() {
         return true;
     }
 
@@ -822,8 +822,10 @@ final class HomeLayout {
         maskPaint.setXfermode(new android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.DST_IN));
         android.graphics.Path miniMask = new android.graphics.Path();
         for (int i = 0; i < n; i++) {
-            float l = pad + (i % g) * (cell + gap);
-            float t = pad + (i / g) * (cell + gap);
+            int col = i % g;
+            int row = i / g;
+            float l = pad + col * (cell + gap);
+            float t = pad + row * (cell + gap);
             RectF dst = new RectF(l, t, l + cell, t + cell);
             int layer = c.saveLayer(dst, null);
             c.drawBitmap(list.get(i).icon, null, dst, p);
@@ -863,8 +865,8 @@ final class HomeLayout {
         if (s == null || !validCell(page, cell)) return false;
         if (s.page == page && s.cell == cell) return false;
         Slot target = slotAt(page, cell);
-        if (page == DOCK && !slotDockEligible(s)) return false;
-        if (target != null && s.page == DOCK && !slotDockEligible(target)) return false;
+        if (page == DOCK && !slotDockEligible()) return false;
+        if (target != null && s.page == DOCK && !slotDockEligible()) return false;
         if (target != null) {
             target.page = s.page;
             target.cell = s.cell;

@@ -22,7 +22,7 @@ final class DeviceLayout {
     private DeviceLayout() {
     }
 
-    private static boolean isAllAppsManufacturer(@NonNull String m) {
+    private static boolean isAllAppsManufacturer() {
         return false;
     }
 
@@ -45,7 +45,7 @@ final class DeviceLayout {
     @NonNull
     static synchronized Mode mode(@NonNull Context ctx) {
         if (cached == null) {
-            Mode m = isAllAppsManufacturer(manufacturer()) ? Mode.ALL_APPS_ON_HOME : Mode.APP_DRAWER;
+            Mode m = isAllAppsManufacturer() ? Mode.ALL_APPS_ON_HOME : Mode.APP_DRAWER;
             Mode o = debugOverride(ctx.getApplicationContext());
             cached = o != null ? o : m;
         }

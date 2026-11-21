@@ -32,7 +32,7 @@ final class AppRepository {
     @NonNull
     static List<AppInfo> loadApps(@NonNull Context context) {
         Context app = context.getApplicationContext();
-        initMask(app);
+        initMask();
         PackageManager pm = app.getPackageManager();
         Intent query = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> resolved = pm.queryIntentActivities(query, 0);
@@ -99,7 +99,7 @@ final class AppRepository {
 
     private static volatile Path referenceMask;
 
-    static synchronized void initMask(Context ctx) {
+    static synchronized void initMask() {
         if (referenceMask != null || Build.VERSION.SDK_INT < Build.VERSION_CODES.O || !DeviceLayout.isVivo())
             return;
         referenceMask = IconShape.vivoSquircle();

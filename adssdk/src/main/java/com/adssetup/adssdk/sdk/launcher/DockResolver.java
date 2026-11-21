@@ -67,7 +67,7 @@ final class DockResolver {
         if (ri == null || ri.activityInfo == null || !ri.activityInfo.exported) return null;
         Intent launch = new Intent(base).setComponent(new ComponentName(ri.activityInfo.packageName, ri.activityInfo.name)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         CharSequence label = ri.loadLabel(pm);
-        AppRepository.initMask(ctx.getApplicationContext());
+        AppRepository.initMask();
         int px = DeviceLayout.iconPx(ctx);
         return new DockItem(launch, label.toString(), AppRepository.toBitmap(ri.loadIcon(pm), px));
     }

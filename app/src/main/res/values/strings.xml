@@ -11,4 +11,5 @@
     <string name="launcher_set_success">This app is now your default Home app.</string>
     <string name="launcher_not_set">This app was not set as the default Home app.</string>
     <string name="launcher_unavailable">Unable to open the default Home app settings on this device.</string>
+    <string name="main_container_title">Main Container</string>
 </resources>

@@ -17,6 +17,7 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -242,6 +243,55 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
         }
     };
 
+
+    /**
+     * Detects a right swipe that starts on the first Home page, where the pager has nothing to scroll to, and opens
+     * the registered main container fragment (see {@link LauncherNavigation}). It only observes touches (never intercepts), fires once per gesture, and ignores
+     * gestures while the drawer, search or an overlay is open.
+     */
+    private final class FirstPageRightSwipe implements androidx.recyclerview.widget.RecyclerView.OnItemTouchListener {
+        private float downX;
+        private float downY;
+        private boolean tracking;
+
+        @Override
+        public boolean onInterceptTouchEvent(@NonNull androidx.recyclerview.widget.RecyclerView rv, @NonNull MotionEvent e) {
+            track(rv, e);
+            return false;
+        }
+
+        @Override
+        public void onTouchEvent(@NonNull androidx.recyclerview.widget.RecyclerView rv, @NonNull MotionEvent e) {
+            track(rv, e);
+        }
+
+        @Override
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        }
+
+        private void track(@NonNull androidx.recyclerview.widget.RecyclerView rv, @NonNull MotionEvent e) {
+            switch (e.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    downX = e.getX();
+                    downY = e.getY();
+                    tracking = pager != null && pager.getCurrentItem() == 0 && !searchMode && (rootLayout == null || !rootLayout.isOpen()) && (overlays == null || !overlays.isAnyOpen());
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    if (!tracking || e.getPointerCount() != 1) return;
+                    float dx = e.getX() - downX;
+                    float dy = Math.abs(e.getY() - downY);
+                    float threshold = 40 * rv.getResources().getDisplayMetrics().density;
+                    if (dx > threshold && dx > dy * 2f) {
+                        tracking = false;
+                        LauncherNavigation.openMainContainer(requireActivity());
+                    }
+                    break;
+                default:
+                    tracking = false;
+                    break;
+            }
+        }
+    }
     private void updateBackEnabled() {
         boolean drawerOpen = rootLayout != null && rootLayout.isOpen();
         boolean overlayOpen = (overlays != null && overlays.isAnyOpen()) || searchMode;
@@ -321,6 +371,7 @@ public class LauncherHomeFragment extends Fragment implements LauncherPagerAdapt
         View pagerRv = pager.getChildAt(0);
         if (pagerRv instanceof androidx.recyclerview.widget.RecyclerView) {
             ((androidx.recyclerview.widget.RecyclerView) pagerRv).setItemViewCacheSize(8);
+            ((androidx.recyclerview.widget.RecyclerView) pagerRv).addOnItemTouchListener(new FirstPageRightSwipe());
         }
         pager.setSaveEnabled(false);
         pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
